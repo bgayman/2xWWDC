@@ -69,6 +69,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     @IBOutlet weak var scrollViewStackView: UIStackView!
     @IBOutlet weak var toolbar: UIToolbar!
     @IBOutlet weak var toolbarBottomConstraint: NSLayoutConstraint!
+    @IBOutlet weak var progressView: UIProgressView!
     
     var transcriptIndex = IndexPath(row: 0, section: 0)
     var searchString = ""
@@ -174,7 +175,9 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     
     func setPlayer(with url: URL)
     {
-        avPlayerViewController.player = AVPlayer(url: url)
+        let asset = AVURLAsset(url: url)
+        let item = AVPlayerItem(asset: asset)
+        avPlayerViewController.player = AVPlayer(playerItem: item)
         avPlayerViewController.player?.play()
         addObservers()
         avPlayerViewController.player?.addPeriodicTimeObserver(forInterval: CMTime(seconds: 1, preferredTimescale: 1), queue: .main)
@@ -321,6 +324,30 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
                 attribString.addAttributes([NSForegroundColorAttributeName: UIColor.orange], range: range)
                 cell.textLabel?.attributedText = attribString
             }
+            if sessionResource?.title.lowercased().contains("hd") == true || sessionResource?.title.lowercased().contains("sd") == true
+            {
+                let button = UIButton(type: .custom)
+                if FileManager.default.fileExists(atPath: FileStorage().url(for: sessionResource!.link).path)
+                {
+                    button.frame = CGRect(x: 0, y: 0, width: #imageLiteral(resourceName: "trash").size.width * 0.75, height:  #imageLiteral(resourceName: "trash").size.width * 0.75)
+                    button.addTarget(self, action: #selector(self.didPressTrash(sender:)), for: .touchUpInside)
+                    button.setImage(#imageLiteral(resourceName: "trash"), for: .normal)
+                    button.tintColor = .black
+                }
+                else
+                {
+                    button.frame = CGRect(x: 0, y: 0, width: #imageLiteral(resourceName: "download").size.width * 0.75, height:  #imageLiteral(resourceName: "download").size.width * 0.75)
+                    button.addTarget(self, action: #selector(self.didPressDownload(sender:)), for: .touchUpInside)
+                    button.setImage(#imageLiteral(resourceName: "download"), for: .normal)
+                    button.tintColor = .black
+                }
+                
+                cell.accessoryView = button
+            }
+            else
+            {
+                cell.accessoryType = .disclosureIndicator
+            }
             return cell
         }
         else
@@ -340,6 +367,8 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
                 attribString.addAttributes([NSForegroundColorAttributeName: UIColor.orange], range: range)
                 cell.textLabel?.attributedText = attribString
             }
+            
+            
             return cell
         }
     }
@@ -360,7 +389,16 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
             guard let resource = selectedResource else { return }
             if resource.title.lowercased().contains("hd") || resource.title.lowercased().contains("sd")
             {
-                setPlayer(with: resource.link)
+                avPlayerViewController.player?.removeObserver(self, forKeyPath: #keyPath(AVPlayer.rate))
+                if FileManager.default.fileExists(atPath: FileStorage().url(for: resource.link).path)
+                {
+                    let url = FileStorage().url(for: resource.link)
+                    setPlayer(with: url)
+                }
+                else
+                {
+                    setPlayer(with: resource.link)
+                }
                 transcriptIndex = IndexPath(row: 0, section: 0)
             }
             else
@@ -388,6 +426,28 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
             transcriptIndex = indexPath
             tableView.reloadRows(at: [indexPath], with: .none)
         }
+    }
+    
+    func didPressDownload(sender: UIButton)
+    {
+        self.progressView.isHidden = false
+        let location = sender.convert(sender.bounds.origin, to: resourcesTableView)
+        guard let indexPath = resourcesTableView.indexPathForRow(at: location),
+              let resource = sessionResources?.sessionResources[indexPath.row] else { return  }
+        DownloadManager.shared.onProgress =
+        { [weak self] progress in
+            self?.progressView.progress = progress
+        }
+        let task = DownloadManager.shared.activate().downloadTask(with: resource.link)
+        task.resume()
+    }
+    
+    func didPressTrash(sender: UIButton)
+    {
+        let location = sender.convert(sender.bounds.origin, to: resourcesTableView)
+        guard let indexPath = resourcesTableView.indexPathForRow(at: location),
+              let resource = sessionResources?.sessionResources[indexPath.row] else { return  }
+        try? FileManager.default.removeItem(at: FileStorage().url(for: resource.link))
     }
 }
 

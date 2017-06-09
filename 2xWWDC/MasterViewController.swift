@@ -219,14 +219,14 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
         let mark = UITableViewRowAction(style: .normal, title: "Mark as Viewed")
         { (_, _) in
             UserDefaults.standard.setHasSeen(session)
-            tableView.endEditing(true)
+            tableView.reloadRows(at: [indexPath], with: .none)
         }
         
         let unmark = UITableViewRowAction(style: .normal, title: "Unmark as Viewed")
         { (_, _) in
             
             UserDefaults.standard.setHasSeen(session, hasSeen: false)
-            tableView.endEditing(true)
+            tableView.reloadRows(at: [indexPath], with: .none)
         }
         
         mark.backgroundColor = .black

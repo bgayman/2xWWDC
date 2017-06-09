@@ -29,7 +29,7 @@ struct FileStorage
     
     func url(for url: URL) -> URL
     {
-        let url = baseURL.appendingPathComponent("download\(url.hashValue)")
+        let url = baseURL.appendingPathComponent("download\(url.hashValue).mp4")
         return url
     }
 }
