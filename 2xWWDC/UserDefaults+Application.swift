@@ -15,9 +15,9 @@ extension UserDefaults
         return self.bool(forKey: "\(session.year)\(session.session)")
     }
     
-    func setHasSeen(_ session: Session)
+    func setHasSeen(_ session: Session, hasSeen: Bool = true)
     {
-        self.set(true, forKey: "\(session.year)\(session.session)")
+        self.set(hasSeen, forKey: "\(session.year)\(session.session)")
         NSUbiquitousKeyValueStore.default().set(true, forKey: "\(session.year)\(session.session)")
     }
 }

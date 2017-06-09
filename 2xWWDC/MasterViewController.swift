@@ -176,7 +176,7 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
         }
         
         cell.accessoryType = UserDefaults.standard.hasSeen(session) ? .checkmark : .disclosureIndicator
-        cell.imageView?.image = session.imageLink != nil ? #imageLiteral(resourceName: "white_background") : nil
+        cell.imageView?.image = session.imageLink != nil ? ImageCache.cache[session.imageLink!] ?? #imageLiteral(resourceName: "white_background") : nil
         session.fetchImage
         { [weak self] (image) in
             guard let strongSelf = self else { return }
@@ -211,16 +211,28 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
         }
     }
     
-//    override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]?
-//    {
-//        let download = UITableViewRowAction(style: .normal, title: "Download")
-//        { [unowned self] (_, indexPath) in
-//            let session = self.years[indexPath.section].sessions[indexPath.row]
-//        }
-//        
-//        download.backgroundColor = .orange
-//        return [download]
-//    }
+    override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]?
+    {
+        let session = self.years[indexPath.section].sessions[indexPath.row]
+        
+        
+        let mark = UITableViewRowAction(style: .normal, title: "Mark as Viewed")
+        { (_, _) in
+            UserDefaults.standard.setHasSeen(session)
+            tableView.endEditing(true)
+        }
+        
+        let unmark = UITableViewRowAction(style: .normal, title: "Unmark as Viewed")
+        { (_, _) in
+            
+            UserDefaults.standard.setHasSeen(session, hasSeen: false)
+            tableView.endEditing(true)
+        }
+        
+        mark.backgroundColor = .black
+        unmark.backgroundColor = .black
+        return UserDefaults.standard.hasSeen(session) ? [unmark] : [mark]
+    }
 }
 
 extension MasterViewController: UISearchResultsUpdating

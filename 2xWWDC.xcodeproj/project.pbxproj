@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		CD17DEB21EE19A8700962A51 /* SessionResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD17DEB11EE19A8700962A51 /* SessionResource.swift */; };
 		CD17DEB81EE19B8B00962A51 /* SessionTranscript.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD17DEB71EE19B8B00962A51 /* SessionTranscript.swift */; };
+		CD22FE441EE8E9F500EB5196 /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD22FE431EE8E9F500EB5196 /* DownloadManager.swift */; };
 		CD28889C1EE82954003DE6E0 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD28889B1EE82954003DE6E0 /* Notifications.swift */; };
 		CD4DAFFD1EE784490084B010 /* UITableView+AnimatedUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD4DAFFC1EE784490084B010 /* UITableView+AnimatedUpdate.swift */; };
 		CD9BDF5D1EE30926003FBCB9 /* StoryboardInitializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD9BDF5C1EE30926003FBCB9 /* StoryboardInitializable.swift */; };
@@ -31,6 +32,7 @@
 /* Begin PBXFileReference section */
 		CD17DEB11EE19A8700962A51 /* SessionResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionResource.swift; sourceTree = "<group>"; };
 		CD17DEB71EE19B8B00962A51 /* SessionTranscript.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionTranscript.swift; sourceTree = "<group>"; };
+		CD22FE431EE8E9F500EB5196 /* DownloadManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
 		CD28889B1EE82954003DE6E0 /* Notifications.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
 		CD4DAFFC1EE784490084B010 /* UITableView+AnimatedUpdate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UITableView+AnimatedUpdate.swift"; sourceTree = "<group>"; };
 		CD9BDF5C1EE30926003FBCB9 /* StoryboardInitializable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoryboardInitializable.swift; sourceTree = "<group>"; };
@@ -79,6 +81,7 @@
 			isa = PBXGroup;
 			children = (
 				CDEC90771EE1036400EC3BF1 /* WebService.swift */,
+				CD22FE431EE8E9F500EB5196 /* DownloadManager.swift */,
 			);
 			name = Networking;
 			sourceTree = "<group>";
@@ -253,6 +256,7 @@
 				CD17DEB21EE19A8700962A51 /* SessionResource.swift in Sources */,
 				CDEC907E1EE1067700EC3BF1 /* SessionsTableViewCell.swift in Sources */,
 				CD9BDF5D1EE30926003FBCB9 /* StoryboardInitializable.swift in Sources */,
+				CD22FE441EE8E9F500EB5196 /* DownloadManager.swift in Sources */,
 				CD28889C1EE82954003DE6E0 /* Notifications.swift in Sources */,
 				CDEC907C1EE103A000EC3BF1 /* Year.swift in Sources */,
 				CDB11D491EE8D28700229519 /* Cache.swift in Sources */,

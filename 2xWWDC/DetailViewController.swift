@@ -34,16 +34,20 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     {
         didSet
         {
-            resourcesTableView.reloadData()
-            transcriptTableView.reloadData()
+            resourcesTableView?.reloadData()
+            transcriptTableView?.reloadData()
             if sessionResources?.transcript.sentences.isEmpty == true
             {
                 UIView.animate(withDuration: 0.2)
                 { [unowned self] in
-                    self.transcriptButton.isHidden = true
+                    self.transcriptButton?.isHidden = true
                 }
-                scrollViewStackView.removeArrangedSubview(transcriptContainer)
-                transcriptContainer.removeFromSuperview()
+                if let transcriptContainer = transcriptContainer
+                {
+                    scrollViewStackView?.removeArrangedSubview(transcriptContainer)
+                    transcriptContainer.removeFromSuperview()
+
+                }
             }
         }
     }
@@ -158,7 +162,8 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         super.viewDidAppear(animated)
         
         guard let session = session else { return }
-        setPlayer(with: session.videoURL)
+        let url = FileManager.default.fileExists(atPath: FileStorage().url(for: session.videoURL).path) ? FileStorage().url(for: session.videoURL) : session.videoURL
+        setPlayer(with: url)
     }
     
     override func viewDidDisappear(_ animated: Bool)
@@ -391,7 +396,7 @@ extension DetailViewController: UIScrollViewDelegate
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
         guard scrollView === self.scrollView else { return }
-        selectionIndicatorLeadinConstraint.constant = scrollView.contentOffset.x * 1.0 / CGFloat(stackView.arrangedSubviews.count)
+        selectionIndicatorLeadinConstraint.constant = (scrollView.contentOffset.x / CGFloat(sessionResources?.transcript.sentences.isEmpty == true ? 2 : 3)) + 8.0
     }
 }
 

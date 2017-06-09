@@ -26,4 +26,10 @@ struct FileStorage
             _ = try? newValue?.write(to: url)
         }
     }
+    
+    func url(for url: URL) -> URL
+    {
+        let url = baseURL.appendingPathComponent("download\(url.hashValue)")
+        return url
+    }
 }
