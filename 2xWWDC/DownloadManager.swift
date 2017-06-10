@@ -72,6 +72,7 @@ final class DownloadManager: NSObject, URLSessionDelegate, URLSessionDownloadDel
         guard let url = downloadTask.originalRequest?.url else { return }
         let newURL = FileStorage().url(for: url)
         try? FileManager.default.moveItem(at: location, to: newURL)
+        NotificationCenter.default.post(name: .WWSessionDidFinishDownloading, object: nil, userInfo: ["resourceURL": url.absoluteString])
     }
     
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?)

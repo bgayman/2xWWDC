@@ -22,6 +22,21 @@ struct Session
     let session: String
     let description: String
     let imageLink: URL?
+    
+    var dictionaryRep: [String: Any]
+    {
+        var dict = ["title": title,
+                    "year": year,
+                    "website": website.absoluteString,
+                    "videoURL": videoURL.absoluteString,
+                    "session": session,
+                    "description": description]
+        if let imageLink = imageLink
+        {
+            dict["imageLink"] = imageLink.absoluteString
+        }
+        return dict
+    }
 }
 
 extension Session

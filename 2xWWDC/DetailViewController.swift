@@ -132,23 +132,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         transcriptTableView.estimatedRowHeight = 55.0
         transcriptTableView.rowHeight = UITableViewAutomaticDimension
         
-        NotificationCenter.default.addObserver(for: keyboardWillShow, object: nil, queue: nil)
-        { [weak self] (payload) in
-            UIView.animate(withDuration: payload.animationDuration)
-            {
-                self?.toolbarBottomConstraint.constant = payload.endFrame.height
-                self?.view.layoutIfNeeded()
-            }
-        }
-        
-        NotificationCenter.default.addObserver(for: keyboardWillHide, object: nil, queue: nil)
-        { [weak self] (payload) in
-            UIView.animate(withDuration: payload.animationDuration)
-            {
-                self?.toolbarBottomConstraint.constant = 0.0
-                self?.view.layoutIfNeeded()
-            }
-        }
+        setupNotifications()
     }
     
     deinit
@@ -171,6 +155,34 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     {
         avPlayerViewController.player?.pause()
         super.viewDidDisappear(animated)
+    }
+    
+    func setupNotifications()
+    {
+        NotificationCenter.default.addObserver(for: keyboardWillShow, object: nil, queue: nil)
+        { [weak self] (payload) in
+            UIView.animate(withDuration: payload.animationDuration)
+            {
+                self?.toolbarBottomConstraint.constant = payload.endFrame.height
+                self?.view.layoutIfNeeded()
+            }
+        }
+        
+        NotificationCenter.default.addObserver(for: keyboardWillHide, object: nil, queue: nil)
+        { [weak self] (payload) in
+            UIView.animate(withDuration: payload.animationDuration)
+            {
+                self?.toolbarBottomConstraint.constant = 0.0
+                self?.view.layoutIfNeeded()
+            }
+        }
+        
+        NotificationCenter.default.addObserver(for: sessionDidFinishingDownloading, object: nil, queue: .main)
+        { [weak self] (payload) in
+            guard self?.sessionResources?.sessionResources.contains(where: { $0.link == payload.cloudURL}) == true else { return }
+            self?.progressView?.isHidden = true
+            self?.resourcesTableView?.reloadData()
+        }
     }
     
     func setPlayer(with url: URL)
@@ -231,6 +243,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
                item.forwardPlaybackEndTime.seconds - player.currentTime().seconds < 30.0
             {
                 UserDefaults.standard.setHasSeen(session)
+                NotificationCenter.default.post(name: .WWSessionDidFinishWatching, object: nil, userInfo: ["year": session.year, "session": session.dictionaryRep])
             }
             segmentedControl.selectedSegmentIndex = 0
         case (1.1 ..< 1.6):

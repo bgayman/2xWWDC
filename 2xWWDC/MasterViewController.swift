@@ -79,7 +79,24 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(self.fetchSessions), for: .valueChanged)
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
+        setupNotifications()
         fetchSessions()
+    }
+    
+    deinit
+    {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    func setupNotifications()
+    {
+        NotificationCenter.default.addObserver(for: sessionDidFinishingWatching, object: nil, queue: nil)
+        { [weak self] (payload) in
+            guard let yearIndex = self?.years.index(where: { $0.year == payload.session.year }),
+                  let sessionIndex = self?.years[yearIndex].sessions.index(where: { $0.session == payload.session.session}) else { return }
+            let indexPath = IndexPath(row: sessionIndex, section: yearIndex)
+            self?.tableView.reloadRows(at: [indexPath], with: .automatic)
+        }
     }
     
     func fetchSessions()

@@ -10,6 +10,14 @@ import UIKit
 
 extension NotificationCenter
 {
+    static func when(_ name: Notification.Name, perform block: @escaping (Notification) -> ())
+    {
+        NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main, using: block)
+    }
+}
+
+extension NotificationCenter
+{
     @discardableResult
     func addObserver<A>(for descriptor: NotificationDescriptor<A>, object obj: Any?, queue: OperationQueue?, using block: @escaping (A) -> Void) -> NSObjectProtocol
     {
@@ -45,5 +53,37 @@ struct KeyboardShowPayload
         self.animationCurve = UIViewAnimationCurve(rawValue: animationCurveRaw)!
         self.animationDuration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as! TimeInterval
         self.isLocal = userInfo[UIKeyboardIsLocalUserInfoKey] as! Bool
+    }
+}
+
+extension Notification.Name
+{
+    static let WWSessionDidFinishWatching = Notification.Name("WWSessionDidFinishWatching")
+    static let WWSessionDidFinishDownloading = Notification.Name("WWSessionDidFinishDownloading")
+}
+
+let sessionDidFinishingWatching = NotificationDescriptor(name: .WWSessionDidFinishWatching, parse: WWSessionDidFinishWatchingPayload.init)
+let sessionDidFinishingDownloading = NotificationDescriptor(name: .WWSessionDidFinishDownloading, parse: WWSessionDidFinishDownloadingPayload.init)
+
+struct WWSessionDidFinishWatchingPayload
+{
+    let session: Session
+    
+    init(userInfo: [AnyHashable: Any])
+    {
+        let year = userInfo["year"] as! String
+        let sessionDict = userInfo["session"] as! [String: Any]
+        self.session = Session(json: sessionDict, year: year)!
+    }
+}
+
+struct WWSessionDidFinishDownloadingPayload
+{
+    let cloudURL: URL
+    
+    init(userInfo: [AnyHashable: Any])
+    {
+        let urlString = userInfo["resourceURL"] as! String
+        self.cloudURL = URL(string: urlString)!
     }
 }
