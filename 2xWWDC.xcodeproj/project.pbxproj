@@ -24,7 +24,6 @@
 		CDEC90781EE1036400EC3BF1 /* WebService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDEC90771EE1036400EC3BF1 /* WebService.swift */; };
 		CDEC907A1EE1036B00EC3BF1 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDEC90791EE1036B00EC3BF1 /* Session.swift */; };
 		CDEC907C1EE103A000EC3BF1 /* Year.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDEC907B1EE103A000EC3BF1 /* Year.swift */; };
-		CDEC907E1EE1067700EC3BF1 /* SessionsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDEC907D1EE1067700EC3BF1 /* SessionsTableViewCell.swift */; };
 		CDEC90811EE64ED100EC3BF1 /* UserDefaults+Application.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDEC90801EE64ED100EC3BF1 /* UserDefaults+Application.swift */; };
 		F20DAA751EE5DA3C00672380 /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F20DAA741EE5DA3C00672380 /* AppCoordinator.swift */; };
 /* End PBXBuildFile section */
@@ -49,7 +48,6 @@
 		CDEC90771EE1036400EC3BF1 /* WebService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebService.swift; sourceTree = "<group>"; };
 		CDEC90791EE1036B00EC3BF1 /* Session.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
 		CDEC907B1EE103A000EC3BF1 /* Year.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Year.swift; sourceTree = "<group>"; };
-		CDEC907D1EE1067700EC3BF1 /* SessionsTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionsTableViewCell.swift; sourceTree = "<group>"; };
 		CDEC907F1EE64E7E00EC3BF1 /* 2xWWDC.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = 2xWWDC.entitlements; sourceTree = "<group>"; };
 		CDEC90801EE64ED100EC3BF1 /* UserDefaults+Application.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UserDefaults+Application.swift"; sourceTree = "<group>"; };
 		F20DAA741EE5DA3C00672380 /* AppCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
@@ -84,14 +82,6 @@
 				CD22FE431EE8E9F500EB5196 /* DownloadManager.swift */,
 			);
 			name = Networking;
-			sourceTree = "<group>";
-		};
-		CD17DEB51EE19B5000962A51 /* View */ = {
-			isa = PBXGroup;
-			children = (
-				CDEC907D1EE1067700EC3BF1 /* SessionsTableViewCell.swift */,
-			);
-			name = View;
 			sourceTree = "<group>";
 		};
 		CD17DEB61EE19B5A00962A51 /* Controller */ = {
@@ -153,7 +143,6 @@
 				CDEC90631EE1033000EC3BF1 /* AppDelegate.swift */,
 				F20DAA741EE5DA3C00672380 /* AppCoordinator.swift */,
 				CD17DEB61EE19B5A00962A51 /* Controller */,
-				CD17DEB51EE19B5000962A51 /* View */,
 				CD17DEB31EE19B3500962A51 /* Model */,
 				CD9BDF5E1EE30932003FBCB9 /* Protocols */,
 				CD17DEB41EE19B3E00962A51 /* Networking */,
@@ -254,7 +243,6 @@
 				CDEC90661EE1033000EC3BF1 /* MasterViewController.swift in Sources */,
 				CDEC90781EE1036400EC3BF1 /* WebService.swift in Sources */,
 				CD17DEB21EE19A8700962A51 /* SessionResource.swift in Sources */,
-				CDEC907E1EE1067700EC3BF1 /* SessionsTableViewCell.swift in Sources */,
 				CD9BDF5D1EE30926003FBCB9 /* StoryboardInitializable.swift in Sources */,
 				CD22FE441EE8E9F500EB5196 /* DownloadManager.swift in Sources */,
 				CD28889C1EE82954003DE6E0 /* Notifications.swift in Sources */,

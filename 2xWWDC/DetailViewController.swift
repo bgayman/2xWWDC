@@ -13,12 +13,14 @@ import SafariServices
 
 final class DetailViewController: UIViewController, StoryboardInitializable
 {
+    // MARK: - Types
     enum SearchState
     {
         case normal
         case searching
     }
     
+    // MARK: - Properties
     var observerContext = 8
     
     var session: Session?
@@ -55,6 +57,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     let highLightColor = UIColor(white: 0.0, alpha: 1.0)
     let lowLightColor = UIColor(white: 0.0, alpha: 0.33)
     
+    // MARK: - Outlets
     @IBOutlet weak var selectionIndicatorLeadinConstraint: NSLayoutConstraint!
     @IBOutlet weak var transcriptTableView: UITableView!
     @IBOutlet weak var resourcesTableView: UITableView!
@@ -74,6 +77,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     var transcriptIndex = IndexPath(row: 0, section: 0)
     var searchString = ""
     
+    // MARK: - Lazy Vars
     lazy var avPlayerViewController: AVPlayerViewController =
     {
         let avPlayerViewController = AVPlayerViewController()
@@ -102,6 +106,13 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         return searchController
     }()
     
+    lazy var shareBarButton: UIBarButtonItem =
+    {
+        let shareBarButton = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(self.didPressShare))
+        return shareBarButton
+    }()
+    
+    // MARK: - Computed Properties
     var searchState: SearchState
     {
         if searchController.isActive && !searchString.isEmpty
@@ -111,6 +122,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         return .normal
     }
     
+    // MARK: - Lifecycle
     override func viewDidLoad()
     {
         super.viewDidLoad()
@@ -118,7 +130,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         toolbar.isTranslucent = true
         let searchBarItem = UIBarButtonItem(customView: searchController.searchBar)
         searchBarItem.width = 300.0
-        toolbar.setItems([UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
+        toolbar.setItems([shareBarButton, UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
                           searchBarItem,
                           UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)], animated: false)
         
@@ -157,7 +169,8 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         super.viewDidDisappear(animated)
     }
     
-    func setupNotifications()
+    // MARK: - Helpers
+    private func setupNotifications()
     {
         NotificationCenter.default.addObserver(for: keyboardWillShow, object: nil, queue: nil)
         { [weak self] (payload) in
@@ -185,7 +198,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         }
     }
     
-    func setPlayer(with url: URL)
+    fileprivate func setPlayer(with url: URL)
     {
         let asset = AVURLAsset(url: url)
         let item = AVPlayerItem(asset: asset)
@@ -210,12 +223,13 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         }
     }
     
-    func addObservers()
+    private func addObservers()
     {
         let options: NSKeyValueObservingOptions = [.new, .old, .initial]
         avPlayerViewController.player?.addObserver(self, forKeyPath: #keyPath(AVPlayer.rate), options: options, context: &observerContext)
     }
     
+    // MARK: - Actions
     @IBAction func didChangeSegmentedControl(_ sender: UISegmentedControl)
     {
         switch sender.selectedSegmentIndex
@@ -231,6 +245,62 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         }
     }
     
+    @IBAction func didPressDescription(_ sender: UIButton)
+    {
+        scrollView.setContentOffset(.zero, animated: true)
+    }
+    
+    @IBAction func didPressResources(_ sender: UIButton)
+    {
+        scrollView.setContentOffset(CGPoint(x: view.bounds.width, y: 0.0), animated: true)
+    }
+    
+    @IBAction func didPressTranscript(_ sender: UIButton)
+    {
+        scrollView.setContentOffset(CGPoint(x: view.bounds.width * 2, y: 0.0), animated: true)
+    }
+    
+    func didPressDownload(sender: UIButton)
+    {
+        sender.alpha = 0.5
+        sender.isEnabled = false
+        self.progressView.isHidden = false
+        let location = sender.convert(sender.bounds.origin, to: resourcesTableView)
+        guard let indexPath = resourcesTableView.indexPathForRow(at: location),
+            let resource = sessionResources?.sessionResources[indexPath.row] else { return  }
+        DownloadManager.shared.onProgress =
+            { [weak self] progress in
+                DispatchQueue.main.async
+                    {
+                        self?.progressView.progress = progress
+                        
+                }
+        }
+        let task = DownloadManager.shared.activate().downloadTask(with: resource.link)
+        task.resume()
+    }
+    
+    func didPressTrash(sender: UIButton)
+    {
+        let location = sender.convert(sender.bounds.origin, to: resourcesTableView)
+        guard let indexPath = resourcesTableView.indexPathForRow(at: location),
+            let resource = sessionResources?.sessionResources[indexPath.row] else { return  }
+        try? FileManager.default.removeItem(at: FileStorage().url(for: resource.link))
+        resourcesTableView.reloadRows(at: [indexPath], with: .none)
+    }
+    
+    func didPressShare()
+    {
+        guard let session = self.session else { return }
+        let activityVC = UIActivityViewController(activityItems: [session.website], applicationActivities: nil)
+        if let popoverController = activityVC.popoverPresentationController
+        {
+            popoverController.barButtonItem = shareBarButton
+        }
+        present(activityVC, animated: true)
+    }
+    
+    // MARK: - KVO
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?)
     {
         guard keyPath == #keyPath(AVPlayer.rate) else { return }
@@ -255,6 +325,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         }
     }
     
+    // MARK: - Networking
     func fetchResources()
     {
         guard let session = self.session,
@@ -278,23 +349,9 @@ final class DetailViewController: UIViewController, StoryboardInitializable
             }
         }
     }
-    
-    @IBAction func didPressDescription(_ sender: UIButton)
-    {
-        scrollView.setContentOffset(.zero, animated: true)
-    }
-    
-    @IBAction func didPressResources(_ sender: UIButton)
-    {
-        scrollView.setContentOffset(CGPoint(x: view.bounds.width, y: 0.0), animated: true)
-    }
-    
-    @IBAction func didPressTranscript(_ sender: UIButton)
-    {
-        scrollView.setContentOffset(CGPoint(x: view.bounds.width * 2, y: 0.0), animated: true)
-    }
 }
 
+// MARK: - UITableViewDelegate
 extension DetailViewController: UITableViewDelegate, UITableViewDataSource
 {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
@@ -440,37 +497,9 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
             tableView.reloadRows(at: [indexPath], with: .none)
         }
     }
-    
-    func didPressDownload(sender: UIButton)
-    {
-        sender.alpha = 0.5
-        sender.isEnabled = false
-        self.progressView.isHidden = false
-        let location = sender.convert(sender.bounds.origin, to: resourcesTableView)
-        guard let indexPath = resourcesTableView.indexPathForRow(at: location),
-              let resource = sessionResources?.sessionResources[indexPath.row] else { return  }
-        DownloadManager.shared.onProgress =
-        { [weak self] progress in
-            DispatchQueue.main.async
-            {
-                self?.progressView.progress = progress
-
-            }
-        }
-        let task = DownloadManager.shared.activate().downloadTask(with: resource.link)
-        task.resume()
-    }
-    
-    func didPressTrash(sender: UIButton)
-    {
-        let location = sender.convert(sender.bounds.origin, to: resourcesTableView)
-        guard let indexPath = resourcesTableView.indexPathForRow(at: location),
-              let resource = sessionResources?.sessionResources[indexPath.row] else { return  }
-        try? FileManager.default.removeItem(at: FileStorage().url(for: resource.link))
-        resourcesTableView.reloadRows(at: [indexPath], with: .none)
-    }
 }
 
+// MARK: - UIScrollViewDelegate
 extension DetailViewController: UIScrollViewDelegate
 {
     func scrollViewDidScroll(_ scrollView: UIScrollView)
@@ -480,6 +509,7 @@ extension DetailViewController: UIScrollViewDelegate
     }
 }
 
+// MARK: - UISearchResultsUpdating
 extension DetailViewController: UISearchResultsUpdating
 {
     func updateSearchResults(for searchController: UISearchController)
@@ -500,6 +530,7 @@ extension DetailViewController: UISearchResultsUpdating
     }
 }
 
+// MARK: - UISearchControllerDelegate
 extension DetailViewController: UISearchControllerDelegate
 {
     func willPresentSearchController(_ searchController: UISearchController)
