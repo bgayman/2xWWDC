@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="H1p-Uh-vWS">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="H1p-Uh-vWS">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12088"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="12089"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -112,14 +112,14 @@
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" directionalLockEnabled="YES" bounces="NO" alwaysBounceHorizontal="YES" pagingEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="y76-Wt-Iae">
                                 <rect key="frame" x="0.0" y="324" width="375" height="299"/>
                                 <subviews>
-                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="xAU-tU-F4g">
-                                        <rect key="frame" x="0.0" y="0.0" width="1125" height="343"/>
+                                    <stackView opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" distribution="fillEqually" translatesAutoresizingMaskIntoConstraints="NO" id="xAU-tU-F4g">
+                                        <rect key="frame" x="0.0" y="0.0" width="1125" height="299"/>
                                         <subviews>
-                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="brF-7U-6fH">
-                                                <rect key="frame" x="0.0" y="0.0" width="375" height="343"/>
+                                            <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="brF-7U-6fH">
+                                                <rect key="frame" x="0.0" y="0.0" width="375" height="299"/>
                                                 <subviews>
                                                     <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" textAlignment="natural" adjustsFontForContentSizeCategory="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Kls-Eu-eAn">
-                                                        <rect key="frame" x="28" y="0.0" width="319" height="343"/>
+                                                        <rect key="frame" x="28" y="0.0" width="319" height="299"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" relation="lessThanOrEqual" constant="500" id="zA9-3t-pAN"/>
@@ -138,10 +138,10 @@
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9zk-5M-vCk">
-                                                <rect key="frame" x="375" y="0.0" width="375" height="343"/>
+                                                <rect key="frame" x="375" y="0.0" width="375" height="299"/>
                                                 <subviews>
                                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" scrollEnabled="NO" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="d5M-ZT-0us">
-                                                        <rect key="frame" x="0.0" y="0.0" width="375" height="343"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="375" height="299"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" relation="lessThanOrEqual" constant="500" id="5Cg-kH-Hi5"/>
@@ -182,10 +182,10 @@
                                                 </constraints>
                                             </view>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="NjU-YM-V5s">
-                                                <rect key="frame" x="750" y="0.0" width="375" height="343"/>
+                                                <rect key="frame" x="750" y="0.0" width="375" height="299"/>
                                                 <subviews>
                                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="EeI-gE-WEG">
-                                                        <rect key="frame" x="8" y="0.0" width="367" height="343"/>
+                                                        <rect key="frame" x="8" y="0.0" width="367" height="299"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" relation="lessThanOrEqual" constant="500" id="bj0-rB-MNb"/>
@@ -234,6 +234,9 @@
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="xAU-tU-F4g" secondAttribute="bottom" id="A5f-eF-exd"/>
                                     <constraint firstItem="xAU-tU-F4g" firstAttribute="leading" secondItem="y76-Wt-Iae" secondAttribute="leading" id="LlC-kQ-RC7"/>
+                                    <constraint firstItem="NjU-YM-V5s" firstAttribute="height" secondItem="y76-Wt-Iae" secondAttribute="height" id="ZwL-S6-1vA"/>
+                                    <constraint firstItem="brF-7U-6fH" firstAttribute="height" secondItem="y76-Wt-Iae" secondAttribute="height" id="cci-nl-WiB"/>
+                                    <constraint firstItem="9zk-5M-vCk" firstAttribute="height" secondItem="y76-Wt-Iae" secondAttribute="height" id="tik-is-dHt"/>
                                     <constraint firstItem="xAU-tU-F4g" firstAttribute="top" secondItem="y76-Wt-Iae" secondAttribute="top" id="u95-hW-Leg"/>
                                     <constraint firstAttribute="trailing" secondItem="xAU-tU-F4g" secondAttribute="trailing" constant="20" symbolic="YES" id="vwg-iW-mpy"/>
                                 </constraints>
@@ -241,8 +244,11 @@
                                     <outlet property="delegate" destination="JEX-9P-axG" id="E4o-HL-oE7"/>
                                 </connections>
                             </scrollView>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zMD-hB-5lf">
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="zMD-hB-5lf">
                                 <rect key="frame" x="0.0" y="623" width="375" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="MKL-hi-nJ1"/>
+                                </constraints>
                                 <items/>
                             </toolbar>
                         </subviews>
@@ -257,7 +263,6 @@
                             <constraint firstAttribute="trailing" secondItem="aHn-hT-dix" secondAttribute="trailing" id="O6b-NU-yxJ"/>
                             <constraint firstItem="y76-Wt-Iae" firstAttribute="top" secondItem="MgT-mm-no4" secondAttribute="bottom" id="VQG-KF-Iew"/>
                             <constraint firstAttribute="trailing" secondItem="y76-Wt-Iae" secondAttribute="trailing" id="Yes-wt-Xaq"/>
-                            <constraint firstAttribute="bottom" secondItem="brF-7U-6fH" secondAttribute="bottom" id="Ypq-c6-5aH"/>
                             <constraint firstItem="aHn-hT-dix" firstAttribute="height" secondItem="svH-Pt-448" secondAttribute="height" multiplier="0.33" id="Z2v-Iw-kC4"/>
                             <constraint firstItem="brF-7U-6fH" firstAttribute="width" secondItem="svH-Pt-448" secondAttribute="width" id="aKh-JE-sDl"/>
                             <constraint firstItem="y76-Wt-Iae" firstAttribute="leading" secondItem="svH-Pt-448" secondAttribute="leading" id="mOu-HP-x9j"/>
@@ -267,10 +272,10 @@
                         </constraints>
                     </view>
                     <toolbarItems/>
-                    <navigationItem key="navigationItem" title="Detail" id="mOI-FS-AaM">
-                        <barButtonItem key="rightBarButtonItem" width="85" id="uDN-S5-NUu">
-                            <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" apportionsSegmentWidthsByContent="YES" segmentControlStyle="bar" selectedSegmentIndex="0" id="elB-ih-rEq">
-                                <rect key="frame" x="274" y="7" width="85" height="30"/>
+                    <navigationItem key="navigationItem" id="mOI-FS-AaM">
+                        <barButtonItem key="rightBarButtonItem" width="100" id="uDN-S5-NUu">
+                            <segmentedControl key="customView" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" selectedSegmentIndex="0" id="elB-ih-rEq">
+                                <rect key="frame" x="259" y="7" width="100" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <segments>
                                     <segment title="1×"/>

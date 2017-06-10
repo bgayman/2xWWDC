@@ -430,13 +430,19 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
     
     func didPressDownload(sender: UIButton)
     {
+        sender.alpha = 0.5
+        sender.isEnabled = false
         self.progressView.isHidden = false
         let location = sender.convert(sender.bounds.origin, to: resourcesTableView)
         guard let indexPath = resourcesTableView.indexPathForRow(at: location),
               let resource = sessionResources?.sessionResources[indexPath.row] else { return  }
         DownloadManager.shared.onProgress =
         { [weak self] progress in
-            self?.progressView.progress = progress
+            DispatchQueue.main.async
+            {
+                self?.progressView.progress = progress
+
+            }
         }
         let task = DownloadManager.shared.activate().downloadTask(with: resource.link)
         task.resume()
@@ -448,6 +454,7 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
         guard let indexPath = resourcesTableView.indexPathForRow(at: location),
               let resource = sessionResources?.sessionResources[indexPath.row] else { return  }
         try? FileManager.default.removeItem(at: FileStorage().url(for: resource.link))
+        resourcesTableView.reloadRows(at: [indexPath], with: .none)
     }
 }
 
