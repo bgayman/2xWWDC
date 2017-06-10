@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
@@ -25,6 +26,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         
         let store = NSUbiquitousKeyValueStore.default()
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateKVStoreItems(notification:)), name: NSUbiquitousKeyValueStore.didChangeExternallyNotification, object: store)
+        
+        let audioSession = AVAudioSession.sharedInstance()
+        do
+        {
+            try audioSession.setCategory(AVAudioSessionCategoryPlayback)
+        } catch
+        {
+            print("Setting category to AVAudioSessionCategoryPlayback failed.")
+        }
         
         return true
     }

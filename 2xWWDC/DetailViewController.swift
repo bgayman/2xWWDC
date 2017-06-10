@@ -91,6 +91,9 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         avPlayerViewController.view.leadingAnchor.constraint(equalTo: self.videoContainerView.leadingAnchor).isActive = true
         avPlayerViewController.view.trailingAnchor.constraint(equalTo: self.videoContainerView.trailingAnchor).isActive = true
         avPlayerViewController.allowsPictureInPicturePlayback = true
+
+        avPlayerViewController.delegate = self
+        
         return avPlayerViewController
     }()
     
@@ -310,7 +313,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
             if let player = avPlayerViewController.player,
                let item = avPlayerViewController.player?.currentItem,
                let session = self.session,
-               item.forwardPlaybackEndTime.seconds - player.currentTime().seconds < 30.0
+               item.duration.seconds - player.currentTime().seconds < 30.0
             {
                 UserDefaults.standard.setHasSeen(session)
                 NotificationCenter.default.post(name: .WWSessionDidFinishWatching, object: nil, userInfo: ["year": session.year, "session": session.dictionaryRep])
@@ -542,6 +545,15 @@ extension DetailViewController: UISearchControllerDelegate
     {
         textView.text = session?.description
         avPlayerViewController.player?.play()
+    }
+}
+
+// MARK: - AVPlayerViewControllerDelegate
+extension DetailViewController: AVPlayerViewControllerDelegate
+{
+    func playerViewController(_ playerViewController: AVPlayerViewController, failedToStartPictureInPictureWithError error: Error)
+    {
+        print(error)
     }
 }
 
