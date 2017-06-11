@@ -148,22 +148,21 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         transcriptTableView.rowHeight = UITableViewAutomaticDimension
         
         setupNotifications()
+        
+        guard let session = session else { return }
+        let url = FileManager.default.fileExists(atPath: FileStorage().url(for: session.videoURL).path) ? FileStorage().url(for: session.videoURL) : session.videoURL
+        setPlayer(with: url)
     }
     
     deinit
     {
         NotificationCenter.default.removeObserver(self)
-        guard session != nil else { return }
         avPlayerViewController.player?.removeObserver(self, forKeyPath: #keyPath(AVPlayer.rate))
     }
     
     override func viewDidAppear(_ animated: Bool)
     {
         super.viewDidAppear(animated)
-        
-        guard let session = session else { return }
-        let url = FileManager.default.fileExists(atPath: FileStorage().url(for: session.videoURL).path) ? FileStorage().url(for: session.videoURL) : session.videoURL
-        setPlayer(with: url)
     }
     
     override func viewDidDisappear(_ animated: Bool)
@@ -199,6 +198,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
             self?.progressView?.isHidden = true
             self?.resourcesTableView?.reloadData()
         }
+        
     }
     
     fileprivate func setPlayer(with url: URL)
@@ -209,18 +209,19 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         avPlayerViewController.player?.play()
         addObservers()
         avPlayerViewController.player?.addPeriodicTimeObserver(forInterval: CMTime(seconds: 1, preferredTimescale: 1), queue: .main)
-        { [unowned self] (time) in
-            guard self.transcriptIndex.row + 1 < (self.sessionResources?.transcript.sentences.count ?? 0) else { return }
-            let nextSentence = self.sessionResources?.transcript.sentences[self.transcriptIndex.row + 1]
+        { [weak self] (time) in
+            guard let strongSelf = self else { return }
+            guard strongSelf.transcriptIndex.row + 1 < (strongSelf.sessionResources?.transcript.sentences.count ?? 0) else { return }
+            let nextSentence = strongSelf.sessionResources?.transcript.sentences[strongSelf.transcriptIndex.row + 1]
             if time.seconds > nextSentence?.startTime ?? 0.0
             {
-                let newIndex = IndexPath(row: self.transcriptIndex.row + 1, section: 0)
-                let lastCell = self.transcriptTableView.cellForRow(at: self.transcriptIndex)
-                lastCell?.textLabel?.textColor = self.lowLightColor
-                let newCell = self.transcriptTableView.cellForRow(at: newIndex)
-                newCell?.textLabel?.textColor = self.highLightColor
-                self.transcriptIndex = newIndex
-                self.transcriptTableView.scrollToRow(at: newIndex, at: .top, animated: true)
+                let newIndex = IndexPath(row: strongSelf.transcriptIndex.row + 1, section: 0)
+                let lastCell = strongSelf.transcriptTableView.cellForRow(at: strongSelf.transcriptIndex)
+                lastCell?.textLabel?.textColor = strongSelf.lowLightColor
+                let newCell = strongSelf.transcriptTableView.cellForRow(at: newIndex)
+                newCell?.textLabel?.textColor = strongSelf.highLightColor
+                strongSelf.transcriptIndex = newIndex
+                strongSelf.transcriptTableView.scrollToRow(at: newIndex, at: .top, animated: true)
             }
             
         }
