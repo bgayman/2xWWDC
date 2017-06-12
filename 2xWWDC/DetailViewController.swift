@@ -102,7 +102,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         let searchController = UISearchController(searchResultsController: nil)
         searchController.searchResultsUpdater = self
         searchController.delegate = self
-        searchController.searchBar.barTintColor = UIColor(white: 0.95, alpha: 1.0)
+        searchController.searchBar.searchBarStyle = .minimal
         searchController.searchBar.tintColor = .black
         searchController.dimsBackgroundDuringPresentation = false
         searchController.hidesNavigationBarDuringPresentation = false
@@ -140,6 +140,11 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     {
         super.viewDidLoad()
         
+        if #available(iOS 11.0, *)
+        {
+            navigationItem.largeTitleDisplayMode = .never
+        }
+        
         toolbar.isTranslucent = true
         let searchBarItem = UIBarButtonItem(customView: searchController.searchBar)
         searchBarItem.width = 300.0
@@ -167,6 +172,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     deinit
     {
         NotificationCenter.default.removeObserver(self)
+        guard session != nil else { return }
         avPlayerViewController.player?.removeObserver(self, forKeyPath: #keyPath(AVPlayer.rate))
     }
     
