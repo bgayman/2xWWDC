@@ -8,6 +8,7 @@
 
 import UIKit
 
+// MARK: - MasterViewControllerActionDelegate
 protocol MasterViewControllerActionDelegate: class
 {
     func didSelectionSession(masterViewController: MasterViewController, session: Session)
@@ -15,35 +16,62 @@ protocol MasterViewControllerActionDelegate: class
 
 final class MasterViewController: UITableViewController, StoryboardInitializable
 {
+    // MARK: - Types
     enum SearchState
     {
         case normal
         case searching
     }
     
-    var years = [Year]()
+    // MARK: - Computed Properties
+    override var canBecomeFirstResponder: Bool
     {
-        didSet
-        {
-            let oldYears = oldValue.map { $0.sessions }
-            let newYears = years.map { $0.sessions }
-            tableView.animateUpdate(oldDataSource: oldYears, newDataSource: newYears)
-        }
+        return true
     }
     
-    weak var actionDelegate: MasterViewControllerActionDelegate?
-    
-    lazy var searchController: UISearchController =
+    override var keyCommands: [UIKeyCommand]?
     {
-        let searchController = UISearchController(searchResultsController: nil)
-        searchController.searchResultsUpdater = self
-        searchController.searchBar.barTintColor = UIColor(white: 0.95, alpha: 1.0)
-        searchController.searchBar.tintColor = .black
-        searchController.dimsBackgroundDuringPresentation = false
-        return searchController
-    }()
+        let search = UIKeyCommand(input: "s", modifierFlags: .command, action: #selector(self.didPressFind), discoverabilityTitle: "Search")
+        
+        let done = UIKeyCommand(input: "d", modifierFlags: .command, action: #selector(self.didPressDone), discoverabilityTitle: "Done")
+        
+        let open1 = UIKeyCommand(input: "1", modifierFlags: .command, action: #selector(self.didPressOpen(keyCommand:)), discoverabilityTitle: "Open First Session")
+        let open2 = UIKeyCommand(input: "2", modifierFlags: .command, action: #selector(self.didPressOpen(keyCommand:)), discoverabilityTitle: "Open Second Session")
+        let open3 = UIKeyCommand(input: "3", modifierFlags: .command, action: #selector(self.didPressOpen(keyCommand:)), discoverabilityTitle: "Open Third Session")
+        let open4 = UIKeyCommand(input: "4", modifierFlags: .command, action: #selector(self.didPressOpen(keyCommand:)), discoverabilityTitle: "Open Fourth Session")
+        let open5 = UIKeyCommand(input: "5", modifierFlags: .command, action: #selector(self.didPressOpen(keyCommand:)), discoverabilityTitle: "Open Fifth Session")
+        let open6 = UIKeyCommand(input: "6", modifierFlags: .command, action: #selector(self.didPressOpen(keyCommand:)), discoverabilityTitle: "Open Sixth Session")
+        let open7 = UIKeyCommand(input: "7", modifierFlags: .command, action: #selector(self.didPressOpen(keyCommand:)), discoverabilityTitle: "Open Seventh Session")
+        let open8 = UIKeyCommand(input: "8", modifierFlags: .command, action: #selector(self.didPressOpen(keyCommand:)), discoverabilityTitle: "Open Eighth Session")
+        let open9 = UIKeyCommand(input: "9", modifierFlags: .command, action: #selector(self.didPressOpen(keyCommand:)), discoverabilityTitle: "Open Ninth Session")
+        
+        var commands = [search,
+                        open1,
+                        open2,
+                        open3,
+                        open4,
+                        open5,
+                        open6,
+                        open7,
+                        open8,
+                        open9]
+        
+        if searchState == .searching
+        {
+            commands.append(done)
+        }
+        
+        return commands
+    }
     
-    var searchString = ""
+    var searchState: SearchState
+    {
+        if searchController.isActive && !searchString.isEmpty
+        {
+            return .searching
+        }
+        return .normal
+    }
     
     var searchResults: [Year]
     {
@@ -59,22 +87,49 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
         return searchYears
     }
     
-    var searchState: SearchState
+    // MARK: - Properties
+    var years = [Year]()
     {
-        if searchController.isActive && !searchString.isEmpty
+        didSet
         {
-            return .searching
+            let oldYears = oldValue.map { $0.sessions }
+            let newYears = years.map { $0.sessions }
+            tableView.animateUpdate(oldDataSource: oldYears, newDataSource: newYears)
         }
-        return .normal
     }
     
+    weak var actionDelegate: MasterViewControllerActionDelegate?
+    
+    var searchString = ""
+    
+    // MARK: - Lazy Init
+    lazy var searchController: UISearchController =
+    {
+        let searchController = UISearchController(searchResultsController: nil)
+        searchController.searchResultsUpdater = self
+        searchController.searchBar.barTintColor = UIColor(white: 0.95, alpha: 1.0)
+        searchController.searchBar.tintColor = .black
+        searchController.dimsBackgroundDuringPresentation = false
+        return searchController
+    }()
+    
+    // MARK: - Lifecycle
     override func viewDidLoad()
     {
         super.viewDidLoad()
         title = "Sessions"
+        if #available(iOS 11.0, *)
+        {
+            navigationController?.navigationBar.prefersLargeTitles = true
+            navigationItem.largeTitleDisplayMode = .always
+            navigationItem.searchController = searchController
+        }
+        else
+        {
+            tableView.tableHeaderView = searchController.searchBar
+        }
         tableView.estimatedRowHeight = 50.0
         tableView.rowHeight = UITableViewAutomaticDimension
-        tableView.tableHeaderView = searchController.searchBar
         definesPresentationContext = true
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(self.fetchSessions), for: .valueChanged)
@@ -88,6 +143,7 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
         NotificationCenter.default.removeObserver(self)
     }
     
+    // MARK: - Notifications
     func setupNotifications()
     {
         NotificationCenter.default.addObserver(for: sessionDidFinishingWatching, object: nil, queue: nil)
@@ -99,6 +155,7 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
         }
     }
     
+    // MARK: - Networking
     func fetchSessions()
     {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
@@ -122,6 +179,36 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
         }
     }
     
+    // MARK: - Actions
+    func didPressFind()
+    {
+        searchController.searchBar.becomeFirstResponder()
+    }
+    
+    func didPressOpen(keyCommand: UIKeyCommand)
+    {
+        guard let index = Int(keyCommand.input) else { return }
+        
+        let session: Session?
+        switch searchState
+        {
+        case .normal:
+            session = years.first?.sessions[index]
+        case .searching:
+            session = searchResults.first?.sessions[index]
+        }
+        if let sess = session
+        {
+            self.actionDelegate?.didSelectionSession(masterViewController: self, session: sess)
+        }
+    }
+    
+    func didPressDone()
+    {
+        searchController.isActive = false
+    }
+    
+    // MARK: - UITableViewDataSource, UITableViewDelegate
     override func numberOfSections(in tableView: UITableView) -> Int
     {
         switch searchState
@@ -252,6 +339,7 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
     }
 }
 
+// MARK: - UISearchResultsUpdating
 extension MasterViewController: UISearchResultsUpdating
 {
     func updateSearchResults(for searchController: UISearchController)

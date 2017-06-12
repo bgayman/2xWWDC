@@ -15,6 +15,7 @@
 		CD9BDF5D1EE30926003FBCB9 /* StoryboardInitializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD9BDF5C1EE30926003FBCB9 /* StoryboardInitializable.swift */; };
 		CDB11D471EE8D1A600229519 /* FileStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDB11D461EE8D1A600229519 /* FileStorage.swift */; };
 		CDB11D491EE8D28700229519 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDB11D481EE8D28700229519 /* Cache.swift */; };
+		CDDD935A1EEE220A00E414A6 /* HairlineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDDD93591EEE220A00E414A6 /* HairlineView.swift */; };
 		CDEC90641EE1033000EC3BF1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDEC90631EE1033000EC3BF1 /* AppDelegate.swift */; };
 		CDEC90661EE1033000EC3BF1 /* MasterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDEC90651EE1033000EC3BF1 /* MasterViewController.swift */; };
 		CDEC90681EE1033000EC3BF1 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDEC90671EE1033000EC3BF1 /* DetailViewController.swift */; };
@@ -37,6 +38,7 @@
 		CD9BDF5C1EE30926003FBCB9 /* StoryboardInitializable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoryboardInitializable.swift; sourceTree = "<group>"; };
 		CDB11D461EE8D1A600229519 /* FileStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileStorage.swift; sourceTree = "<group>"; };
 		CDB11D481EE8D28700229519 /* Cache.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
+		CDDD93591EEE220A00E414A6 /* HairlineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HairlineView.swift; sourceTree = "<group>"; };
 		CDEC90601EE1033000EC3BF1 /* 2xWWDC.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = 2xWWDC.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDEC90631EE1033000EC3BF1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CDEC90651EE1033000EC3BF1 /* MasterViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MasterViewController.swift; sourceTree = "<group>"; };
@@ -120,6 +122,14 @@
 			name = Misc;
 			sourceTree = "<group>";
 		};
+		CDDD935B1EEE235900E414A6 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				CDDD93591EEE220A00E414A6 /* HairlineView.swift */,
+			);
+			name = View;
+			sourceTree = "<group>";
+		};
 		CDEC90571EE1033000EC3BF1 = {
 			isa = PBXGroup;
 			children = (
@@ -144,6 +154,7 @@
 				F20DAA741EE5DA3C00672380 /* AppCoordinator.swift */,
 				CD17DEB61EE19B5A00962A51 /* Controller */,
 				CD17DEB31EE19B3500962A51 /* Model */,
+				CDDD935B1EEE235900E414A6 /* View */,
 				CD9BDF5E1EE30932003FBCB9 /* Protocols */,
 				CD17DEB41EE19B3E00962A51 /* Networking */,
 				CD4DAFFE1EE7875C0084B010 /* Extensions */,
@@ -243,6 +254,7 @@
 				CDEC90661EE1033000EC3BF1 /* MasterViewController.swift in Sources */,
 				CDEC90781EE1036400EC3BF1 /* WebService.swift in Sources */,
 				CD17DEB21EE19A8700962A51 /* SessionResource.swift in Sources */,
+				CDDD935A1EEE220A00E414A6 /* HairlineView.swift in Sources */,
 				CD9BDF5D1EE30926003FBCB9 /* StoryboardInitializable.swift in Sources */,
 				CD22FE441EE8E9F500EB5196 /* DownloadManager.swift in Sources */,
 				CD28889C1EE82954003DE6E0 /* Notifications.swift in Sources */,

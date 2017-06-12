@@ -115,6 +115,16 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         return shareBarButton
     }()
     
+    lazy var filteredSessionResources: [SessionResource]! =
+    {
+        return self.sessionResources?.sessionResources.filter { $0.title.lowercased().contains(self.searchString.lowercased()) } ?? []
+    }()
+    
+    lazy var filteredTranscript: [Sentence]! =
+    {
+        return self.sessionResources?.transcript.sentences.filter { $0.text.lowercased().contains(self.searchString.lowercased()) } ?? []
+    }()
+    
     // MARK: - Computed Properties
     var searchState: SearchState
     {
@@ -367,7 +377,7 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
             case .normal:
                 return sessionResources?.sessionResources.count ?? 0
             case .searching:
-                return sessionResources?.sessionResources.filter { $0.title.lowercased().contains(searchString.lowercased()) }.count ?? 0
+                return filteredSessionResources.count
             }
         }
         switch searchState
@@ -375,7 +385,7 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
         case .normal:
             return sessionResources?.transcript.sentences.count ?? 0
         case .searching:
-            return sessionResources?.transcript.sentences.filter { $0.text.lowercased().contains(searchString.lowercased()) }.count ?? 0
+            return filteredTranscript.count
         }
         
     }
@@ -392,7 +402,7 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
                 sessionResource = sessionResources?.sessionResources[indexPath.row]
                 cell.textLabel?.text = sessionResource?.title
             case .searching:
-                sessionResource = sessionResources?.sessionResources.filter { $0.title.lowercased().contains(searchString.lowercased()) }[indexPath.row]
+                sessionResource = filteredSessionResources[indexPath.row]
                 let attribString = NSMutableAttributedString(string: sessionResource?.title ?? "", attributes: [NSForegroundColorAttributeName: UIColor.black])
                 let range = ((sessionResource?.title.lowercased() ?? "") as NSString).range(of: searchString.lowercased())
                 attribString.addAttributes([NSForegroundColorAttributeName: UIColor.orange], range: range)
@@ -435,7 +445,7 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
                 cell.textLabel?.text = sentence?.text
                 cell.textLabel?.textColor = indexPath == transcriptIndex ? highLightColor : lowLightColor
             case .searching:
-                sentence = sessionResources?.transcript.sentences.filter { $0.text.lowercased().contains(searchString.lowercased()) }[indexPath.row]
+                sentence = filteredTranscript[indexPath.row]
                 let attribString = NSMutableAttributedString(string: sentence?.text ?? "", attributes: [NSForegroundColorAttributeName: indexPath == transcriptIndex ? highLightColor : lowLightColor])
                 let range = ((sentence?.text.lowercased() ?? "") as NSString).range(of: searchString.lowercased())
                 attribString.addAttributes([NSForegroundColorAttributeName: UIColor.orange], range: range)
@@ -457,7 +467,7 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
             case .normal:
                 selectedResource = sessionResources?.sessionResources[indexPath.row]
             case .searching:
-                selectedResource = sessionResources?.sessionResources.filter { $0.title.lowercased().contains(searchString.lowercased()) }[indexPath.row]
+                selectedResource = filteredSessionResources[indexPath.row]
                 searchController.searchBar.resignFirstResponder()
             }
             guard let resource = selectedResource else { return }
@@ -491,7 +501,7 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
             case .normal:
                 selectedSentence = sessionResources?.transcript.sentences[indexPath.row]
             case .searching:
-                selectedSentence = sessionResources?.transcript.sentences.filter { $0.text.lowercased().contains(searchString.lowercased()) }[indexPath.row]
+                selectedSentence = filteredTranscript[indexPath.row]
                 searchController.searchBar.resignFirstResponder()
             }
             guard let sentence = selectedSentence else { return }
@@ -520,6 +530,8 @@ extension DetailViewController: UISearchResultsUpdating
     {
         guard let text = searchController.searchBar.text else { return }
         searchString = text
+        filteredSessionResources = nil
+        filteredTranscript = nil
         resourcesTableView.reloadData()
         if sessionResources?.transcript.sentences.isEmpty == false
         {
