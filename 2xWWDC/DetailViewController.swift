@@ -140,10 +140,10 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     {
         super.viewDidLoad()
         
-        if #available(iOS 11.0, *)
-        {
-            navigationItem.largeTitleDisplayMode = .never
-        }
+//        if #available(iOS 11.0, *)
+//        {
+//            navigationItem.largeTitleDisplayMode = .never
+//        }
         
         toolbar.isTranslucent = true
         let searchBarItem = UIBarButtonItem(customView: searchController.searchBar)

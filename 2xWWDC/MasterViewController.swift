@@ -11,7 +11,9 @@ import UIKit
 // MARK: - MasterViewControllerActionDelegate
 protocol MasterViewControllerActionDelegate: class
 {
-    func didSelectionSession(masterViewController: MasterViewController, session: Session)
+    func didSelection(session: Session, in masterViewController: MasterViewController)
+    func didForceTouch(session: Session, in masterViewController: MasterViewController) -> UIViewController?
+    func didCommitPreview(context: UIViewControllerPreviewing, viewControllerToCommit: UIViewController, in masterViewController: MasterViewController)
 }
 
 final class MasterViewController: UITableViewController, StoryboardInitializable
@@ -118,16 +120,16 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
     {
         super.viewDidLoad()
         title = "Sessions"
-        if #available(iOS 11.0, *)
-        {
-            navigationController?.navigationBar.prefersLargeTitles = true
-            navigationItem.largeTitleDisplayMode = .always
-            navigationItem.searchController = searchController
-        }
-        else
-        {
+//        if #available(iOS 11.0, *)
+//        {
+//            navigationController?.navigationBar.prefersLargeTitles = true
+//            navigationItem.largeTitleDisplayMode = .always
+//            navigationItem.searchController = searchController
+//        }
+//        else
+//        {
             tableView.tableHeaderView = searchController.searchBar
-        }
+//        }
         tableView.estimatedRowHeight = 50.0
         tableView.rowHeight = UITableViewAutomaticDimension
         definesPresentationContext = true
@@ -136,6 +138,11 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
         setupNotifications()
         fetchSessions()
+        
+        if self.traitCollection.forceTouchCapability == .available
+        {
+            self.registerForPreviewing(with: self, sourceView: tableView)
+        }
     }
     
     deinit
@@ -199,7 +206,7 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
         }
         if let sess = session
         {
-            self.actionDelegate?.didSelectionSession(masterViewController: self, session: sess)
+            actionDelegate?.didSelection(session: sess, in: self)
         }
     }
     
@@ -307,11 +314,11 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
         case .normal:
             let session = years[indexPath.section].sessions[indexPath.row]
             tableView.deselectRow(at: indexPath, animated: true)
-            actionDelegate?.didSelectionSession(masterViewController: self, session: session)
+            actionDelegate?.didSelection(session: session, in: self)
         case .searching:
             let session = searchResults[indexPath.section].sessions[indexPath.row]
             searchController.searchBar.resignFirstResponder()
-            actionDelegate?.didSelectionSession(masterViewController: self, session: session)
+            actionDelegate?.didSelection(session: session, in: self)
         }
     }
     
@@ -336,6 +343,30 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
         mark.backgroundColor = .black
         unmark.backgroundColor = .black
         return UserDefaults.standard.hasSeen(session) ? [unmark] : [mark]
+    }
+}
+
+// MARK: - UIViewControllerPreviewingDelegate
+extension MasterViewController: UIViewControllerPreviewingDelegate
+{
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController?
+    {
+        guard let indexPath = tableView.indexPathForRow(at: view.convert(location, to: tableView)) else { return nil }
+        let session: Session
+        switch searchState
+        {
+        case .normal:
+            session = years[indexPath.section].sessions[indexPath.row]
+        case .searching:
+            session = searchResults[indexPath.section].sessions[indexPath.row]
+        }
+        let vc = actionDelegate?.didForceTouch(session: session, in: self)
+        return vc
+    }
+    
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController)
+    {
+        actionDelegate?.didCommitPreview(context: previewingContext, viewControllerToCommit: viewControllerToCommit, in: self)
     }
 }
 

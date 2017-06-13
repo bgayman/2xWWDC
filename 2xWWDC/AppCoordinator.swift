@@ -25,11 +25,24 @@ final class AppCoordinator: MasterViewControllerActionDelegate
         masterViewController.actionDelegate = self
     }
     
-    func didSelectionSession(masterViewController: MasterViewController, session: Session)
+    func didSelection(session: Session, in masterViewController: MasterViewController)
     {
         let detail = DetailViewController.makeFromStoryboard()
         detail.session = session
         let nav = UINavigationController(rootViewController: detail)
+        splitViewController.showDetailViewController(nav, sender: self)
+    }
+    
+    func didForceTouch(session: Session, in masterViewController: MasterViewController) -> UIViewController?
+    {
+        let detail = DetailViewController.makeFromStoryboard()
+        detail.session = session
+        return detail
+    }
+    
+    func didCommitPreview(context: UIViewControllerPreviewing, viewControllerToCommit: UIViewController, in masterViewController: MasterViewController)
+    {
+        let nav = UINavigationController(rootViewController: viewControllerToCommit)
         splitViewController.showDetailViewController(nav, sender: self)
     }
 }
