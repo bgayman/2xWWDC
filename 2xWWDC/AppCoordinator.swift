@@ -8,8 +8,9 @@
 
 import UIKit
 import AVKit
+import SafariServices
 
-final class AppCoordinator: MasterViewControllerActionDelegate
+final class AppCoordinator: MasterViewControllerActionDelegate, DetailViewControllerActionDelegate
 {
     let splitViewController: UISplitViewController
     
@@ -29,6 +30,7 @@ final class AppCoordinator: MasterViewControllerActionDelegate
     {
         let detail = DetailViewController.makeFromStoryboard()
         detail.session = session
+        detail.actionDelegate = self
         let nav = UINavigationController(rootViewController: detail)
         splitViewController.showDetailViewController(nav, sender: self)
     }
@@ -37,6 +39,7 @@ final class AppCoordinator: MasterViewControllerActionDelegate
     {
         let detail = DetailViewController.makeFromStoryboard()
         detail.session = session
+        detail.actionDelegate = self
         return detail
     }
     
@@ -44,6 +47,28 @@ final class AppCoordinator: MasterViewControllerActionDelegate
     {
         let nav = UINavigationController(rootViewController: viewControllerToCommit)
         splitViewController.showDetailViewController(nav, sender: self)
+    }
+    
+    func didPress(sessionResource: SessionResource, in detailViewController: DetailViewController)
+    {
+        let safariVC = SFSafariViewController(url: sessionResource.link)
+        safariVC.view.tintColor = .black
+        safariVC.preferredControlTintColor = .black
+        detailViewController.present(safariVC, animated: true)
+    }
+    
+    func didForceTouch(sessionResource: SessionResource?, in detailViewController: DetailViewController) -> UIViewController?
+    {
+        guard let sessionResource = sessionResource else { return nil }
+        let safariVC = SFSafariViewController(url: sessionResource.link)
+        safariVC.view.tintColor = .black
+        safariVC.preferredControlTintColor = .black
+        return safariVC
+    }
+    
+    func didCommitPreview(context: UIViewControllerPreviewing, viewControllerToCommit: UIViewController, in detailViewController: DetailViewController)
+    {
+        detailViewController.present(viewControllerToCommit, animated: true)
     }
 }
 

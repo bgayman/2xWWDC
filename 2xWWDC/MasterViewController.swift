@@ -120,6 +120,7 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
     {
         super.viewDidLoad()
         title = "Sessions"
+        // Commented out for Xcode 8
 //        if #available(iOS 11.0, *)
 //        {
 //            navigationController?.navigationBar.prefersLargeTitles = true

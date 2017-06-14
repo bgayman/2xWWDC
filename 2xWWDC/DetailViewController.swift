@@ -9,7 +9,13 @@
 import UIKit
 import AVKit
 import AVFoundation
-import SafariServices
+
+protocol DetailViewControllerActionDelegate: class
+{
+    func didPress(sessionResource: SessionResource, in detailViewController: DetailViewController)
+    func didForceTouch(sessionResource: SessionResource?, in detailViewController: DetailViewController) -> UIViewController?
+    func didCommitPreview(context: UIViewControllerPreviewing, viewControllerToCommit: UIViewController, in detailViewController: DetailViewController)
+}
 
 final class DetailViewController: UIViewController, StoryboardInitializable
 {
@@ -56,6 +62,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     
     let highLightColor = UIColor(white: 0.0, alpha: 1.0)
     let lowLightColor = UIColor(white: 0.0, alpha: 0.33)
+    weak var actionDelegate: DetailViewControllerActionDelegate?
     
     // MARK: - Outlets
     @IBOutlet weak var selectionIndicatorLeadinConstraint: NSLayoutConstraint!
@@ -163,6 +170,11 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         transcriptTableView.rowHeight = UITableViewAutomaticDimension
         
         setupNotifications()
+        
+        if traitCollection.forceTouchCapability == .available
+        {
+            registerForPreviewing(with: self, sourceView: view)
+        }
         
         guard let session = session else { return }
         let url = FileManager.default.fileExists(atPath: FileStorage().url(for: session.videoURL).path) ? FileStorage().url(for: session.videoURL) : session.videoURL
@@ -493,10 +505,7 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
             }
             else
             {
-                let safariVC = SFSafariViewController(url: resource.link)
-                safariVC.view.tintColor = .black
-                safariVC.preferredControlTintColor = .black
-                present(safariVC, animated: true)
+                actionDelegate?.didPress(sessionResource: resource, in: self)
             }
         }
         else
@@ -573,6 +582,28 @@ extension DetailViewController: AVPlayerViewControllerDelegate
     func playerViewController(_ playerViewController: AVPlayerViewController, failedToStartPictureInPictureWithError error: Error)
     {
         print(error)
+    }
+}
+
+extension DetailViewController: UIViewControllerPreviewingDelegate
+{
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController?
+    {
+        guard let indexPath = resourcesTableView.indexPathForRow(at: view.convert(location, to: resourcesTableView)) else { return nil }
+        let resource: SessionResource?
+        switch searchState
+        {
+        case .normal:
+            resource = sessionResources?.sessionResources[indexPath.row]
+        case .searching:
+            resource = filteredSessionResources[indexPath.row]
+        }
+        return actionDelegate?.didForceTouch(sessionResource: resource, in: self)
+    }
+    
+    func previewingContext(_ previewingContext: UIViewControllerPreviewing, commit viewControllerToCommit: UIViewController)
+    {
+        actionDelegate?.didCommitPreview(context: previewingContext, viewControllerToCommit: viewControllerToCommit, in: self)
     }
 }
 
