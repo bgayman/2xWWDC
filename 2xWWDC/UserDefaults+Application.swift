@@ -20,4 +20,17 @@ extension UserDefaults
         self.set(hasSeen, forKey: "\(session.year)\(session.session)")
         NSUbiquitousKeyValueStore.default().set(true, forKey: "\(session.year)\(session.session)")
     }
+    
+    func progress(_ session: Session?) -> Double
+    {
+        guard let session = session else { return 0.0 }
+        return self.double(forKey: "progress\(session.year)\(session.session)")
+    }
+    
+    func setVideoProgress(_ session: Session?, progress: Double)
+    {
+        guard let session = session else { return }
+        self.set(progress, forKey: "progress\(session.year)\(session.session)")
+        NSUbiquitousKeyValueStore.default().set(progress, forKey: "progress\(session.year)\(session.session)")
+    }
 }

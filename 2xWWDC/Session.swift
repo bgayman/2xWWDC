@@ -83,10 +83,19 @@ extension Session
         DispatchQueue.global(qos: .userInitiated).async
         {
             var image: UIImage? = nil
-            if let data = try? Data(contentsOf: imageLink)
+            if let data = FileStorage.shared["image\(imageLink.hashValue)"]
+            {
+                image = UIImage(data: data)
+            }
+            else if let data = try? Data(contentsOf: imageLink)
             {
                 image = UIImage(data: data)?.scaleImage(scaleFactor: 0.05)
+                if let img = image
+                {
+                    FileStorage.shared["image\(imageLink.hashValue)"] = UIImageJPEGRepresentation(img, 1.0)
+                }
             }
+            
             DispatchQueue.main.async
             {
                 ImageCache.cache[imageLink] = image

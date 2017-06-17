@@ -196,6 +196,13 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     override func viewDidDisappear(_ animated: Bool)
     {
         avPlayerViewController.player?.pause()
+        if let item = avPlayerViewController.player?.currentItem,
+           let session = self.session,
+           let player = avPlayerViewController.player,
+           item.duration.seconds - player.currentTime().seconds > 30.0
+        {
+            UserDefaults.standard.setVideoProgress(session, progress: item.currentTime().seconds)
+        }
         super.viewDidDisappear(animated)
     }
     
@@ -234,6 +241,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         let asset = AVURLAsset(url: url)
         let item = AVPlayerItem(asset: asset)
         avPlayerViewController.player = AVPlayer(playerItem: item)
+        avPlayerViewController.player?.seek(to: CMTime(seconds: UserDefaults.standard.progress(session), preferredTimescale: CMTimeScale(1.0)))
         avPlayerViewController.player?.play()
         addObservers()
         avPlayerViewController.player?.addPeriodicTimeObserver(forInterval: CMTime(seconds: 1, preferredTimescale: 1), queue: .main)
@@ -301,12 +309,12 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         guard let indexPath = resourcesTableView.indexPathForRow(at: location),
             let resource = sessionResources?.sessionResources[indexPath.row] else { return  }
         DownloadManager.shared.onProgress =
-            { [weak self] progress in
-                DispatchQueue.main.async
-                    {
-                        self?.progressView.progress = progress
-                        
-                }
+        { [weak self] progress in
+            DispatchQueue.main.async
+            {
+                self?.progressView.progress = progress
+                    
+            }
         }
         let task = DownloadManager.shared.activate().downloadTask(with: resource.link)
         task.resume()
@@ -345,6 +353,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
                item.duration.seconds - player.currentTime().seconds < 30.0
             {
                 UserDefaults.standard.setHasSeen(session)
+                UserDefaults.standard.setVideoProgress(session, progress: 0.0)
                 NotificationCenter.default.post(name: .WWSessionDidFinishWatching, object: nil, userInfo: ["year": session.year, "session": session.dictionaryRep])
             }
             segmentedControl.selectedSegmentIndex = 0
@@ -491,6 +500,7 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
             guard let resource = selectedResource else { return }
             if resource.title.lowercased().contains("hd") || resource.title.lowercased().contains("sd")
             {
+                UserDefaults.standard.setVideoProgress(session, progress: avPlayerViewController.player?.currentItem?.currentTime().seconds ?? 0.0)
                 avPlayerViewController.player?.removeObserver(self, forKeyPath: #keyPath(AVPlayer.rate))
                 if FileManager.default.fileExists(atPath: FileStorage().url(for: resource.link).path)
                 {
