@@ -85,11 +85,11 @@ extension Session
             var image: UIImage? = nil
             if let data = FileStorage.shared["image\(imageLink.hashValue)"]
             {
-                image = UIImage(data: data)
+                image = UIImage(data: data, scale: UIScreen.main.scale)
             }
             else if let data = try? Data(contentsOf: imageLink)
             {
-                image = UIImage(data: data)?.scaleImage(scaleFactor: 0.05)
+                image = UIImage(data: data, scale: UIScreen.main.scale)?.scaleImage(scaleFactor: 0.05)
                 if let img = image
                 {
                     FileStorage.shared["image\(imageLink.hashValue)"] = UIImageJPEGRepresentation(img, 1.0)

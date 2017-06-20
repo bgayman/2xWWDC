@@ -234,6 +234,22 @@ final class DetailViewController: UIViewController, StoryboardInitializable
             self?.resourcesTableView?.reloadData()
         }
         
+        NotificationCenter.when(.UIApplicationDidEnterBackground)
+        { [weak self](_) in
+            guard let item = self?.avPlayerViewController.player?.currentItem,
+                  let player = self?.avPlayerViewController.player,
+                  let session = self?.session else { return }
+            if item.duration.seconds - player.currentTime().seconds > 30.0
+            {
+                UserDefaults.standard.setVideoProgress(session, progress: item.currentTime().seconds)
+            }
+            else
+            {
+                UserDefaults.standard.setVideoProgress(session, progress: 0.0)
+            }
+            
+        }
+        
     }
     
     fileprivate func setPlayer(with url: URL)
