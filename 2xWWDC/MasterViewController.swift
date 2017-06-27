@@ -33,7 +33,7 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
     
     override var keyCommands: [UIKeyCommand]?
     {
-        let search = UIKeyCommand(input: "s", modifierFlags: .command, action: #selector(self.didPressFind), discoverabilityTitle: "Search")
+        let search = UIKeyCommand(input: "f", modifierFlags: .command, action: #selector(self.didPressFind), discoverabilityTitle: "Search")
         
         let done = UIKeyCommand(input: "d", modifierFlags: .command, action: #selector(self.didPressDone), discoverabilityTitle: "Done")
         
@@ -159,7 +159,25 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
             guard let yearIndex = self?.years.index(where: { $0.year == payload.session.year }),
                   let sessionIndex = self?.years[yearIndex].sessions.index(where: { $0.session == payload.session.session}) else { return }
             let indexPath = IndexPath(row: sessionIndex, section: yearIndex)
-            self?.tableView.reloadRows(at: [indexPath], with: .automatic)
+            if self?.view.window != nil
+            {
+                self?.tableView.reloadRows(at: [indexPath], with: .automatic)
+            }
+        }
+        
+        NotificationCenter.default.addObserver(for: sessionDidFinishingDownloading, object: nil, queue: .main)
+        { [weak self] (payload) in
+            for (index, year) in (self?.years.enumerated() ?? [Year]().enumerated())
+            {
+                guard let session = year.sessions.first(where: { $0.id  == payload.sessionID }),
+                      let sessionIndex = year.sessions.index(of: session) else { continue }
+                let indexPath = IndexPath(row: sessionIndex, section: index)
+                if self?.view.window != nil
+                {
+                    self?.tableView.reloadRows(at: [indexPath], with: .automatic)
+                }
+                return
+            }
         }
     }
     
@@ -343,7 +361,9 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
         
         mark.backgroundColor = .black
         unmark.backgroundColor = .black
-        return UserDefaults.standard.hasSeen(session) ? [unmark] : [mark]
+        return UserDefaults.standard.hasSeen(session)
+               ? [unmark]
+               : [mark]
     }
 }
 
@@ -352,7 +372,7 @@ extension MasterViewController: UIViewControllerPreviewingDelegate
 {
     func previewingContext(_ previewingContext: UIViewControllerPreviewing, viewControllerForLocation location: CGPoint) -> UIViewController?
     {
-        guard let indexPath = tableView.indexPathForRow(at: view.convert(location, to: tableView)) else { return nil }
+        guard let indexPath = tableView.indexPathForRow(at: location) else { return nil }
         let session: Session
         switch searchState
         {

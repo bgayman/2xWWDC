@@ -37,6 +37,11 @@ struct Session
         }
         return dict
     }
+    
+    var id: Int
+    {
+        return videoURL.absoluteString.hashValue
+    }
 }
 
 extension Session
@@ -89,7 +94,7 @@ extension Session
             }
             else if let data = try? Data(contentsOf: imageLink)
             {
-                image = UIImage(data: data, scale: UIScreen.main.scale)?.scaleImage(scaleFactor: 0.05)
+                image = UIImage(data: data, scale: UIScreen.main.scale)?.scaleImage(scaleFactor: 0.08)
                 if let img = image
                 {
                     FileStorage.shared["image\(imageLink.hashValue)"] = UIImageJPEGRepresentation(img, 1.0)

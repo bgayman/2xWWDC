@@ -9,7 +9,13 @@
 /* Begin PBXBuildFile section */
 		CD17DEB21EE19A8700962A51 /* SessionResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD17DEB11EE19A8700962A51 /* SessionResource.swift */; };
 		CD17DEB81EE19B8B00962A51 /* SessionTranscript.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD17DEB71EE19B8B00962A51 /* SessionTranscript.swift */; };
-		CD22FE441EE8E9F500EB5196 /* DownloadManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD22FE431EE8E9F500EB5196 /* DownloadManager.swift */; };
+		CD2400511EF9ADEF00F92D16 /* BaseOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD2400501EF9ADEF00F92D16 /* BaseOperation.swift */; };
+		CD2400531EF9B10F00F92D16 /* DownloadOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD2400521EF9B10F00F92D16 /* DownloadOperation.swift */; };
+		CD2400551EF9B17900F92D16 /* PersistenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD2400541EF9B17900F92D16 /* PersistenceManager.swift */; };
+		CD2400581EF9B45700F92D16 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = CD2400561EF9B45700F92D16 /* Model.xcdatamodeld */; };
+		CD24005A1EF9B6A300F92D16 /* DownloadingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD2400591EF9B6A300F92D16 /* DownloadingSession.swift */; };
+		CD24005C1EF9B73500F92D16 /* DownloadInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD24005B1EF9B73500F92D16 /* DownloadInfo.swift */; };
+		CD2400601EF9C3B500F92D16 /* DownloadController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD24005F1EF9C3B500F92D16 /* DownloadController.swift */; };
 		CD28889C1EE82954003DE6E0 /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD28889B1EE82954003DE6E0 /* Notifications.swift */; };
 		CD4DAFFD1EE784490084B010 /* UITableView+AnimatedUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD4DAFFC1EE784490084B010 /* UITableView+AnimatedUpdate.swift */; };
 		CD9BDF5D1EE30926003FBCB9 /* StoryboardInitializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD9BDF5C1EE30926003FBCB9 /* StoryboardInitializable.swift */; };
@@ -32,7 +38,13 @@
 /* Begin PBXFileReference section */
 		CD17DEB11EE19A8700962A51 /* SessionResource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionResource.swift; sourceTree = "<group>"; };
 		CD17DEB71EE19B8B00962A51 /* SessionTranscript.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SessionTranscript.swift; sourceTree = "<group>"; };
-		CD22FE431EE8E9F500EB5196 /* DownloadManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DownloadManager.swift; sourceTree = "<group>"; };
+		CD2400501EF9ADEF00F92D16 /* BaseOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseOperation.swift; sourceTree = "<group>"; };
+		CD2400521EF9B10F00F92D16 /* DownloadOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadOperation.swift; sourceTree = "<group>"; };
+		CD2400541EF9B17900F92D16 /* PersistenceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceManager.swift; sourceTree = "<group>"; };
+		CD2400571EF9B45700F92D16 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		CD2400591EF9B6A300F92D16 /* DownloadingSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadingSession.swift; sourceTree = "<group>"; };
+		CD24005B1EF9B73500F92D16 /* DownloadInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadInfo.swift; sourceTree = "<group>"; };
+		CD24005F1EF9C3B500F92D16 /* DownloadController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadController.swift; sourceTree = "<group>"; };
 		CD28889B1EE82954003DE6E0 /* Notifications.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
 		CD4DAFFC1EE784490084B010 /* UITableView+AnimatedUpdate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UITableView+AnimatedUpdate.swift"; sourceTree = "<group>"; };
 		CD9BDF5C1EE30926003FBCB9 /* StoryboardInitializable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoryboardInitializable.swift; sourceTree = "<group>"; };
@@ -73,6 +85,9 @@
 				CDEC907B1EE103A000EC3BF1 /* Year.swift */,
 				CD17DEB11EE19A8700962A51 /* SessionResource.swift */,
 				CD17DEB71EE19B8B00962A51 /* SessionTranscript.swift */,
+				CD2400591EF9B6A300F92D16 /* DownloadingSession.swift */,
+				CD24005B1EF9B73500F92D16 /* DownloadInfo.swift */,
+				CD2400561EF9B45700F92D16 /* Model.xcdatamodeld */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -81,7 +96,9 @@
 			isa = PBXGroup;
 			children = (
 				CDEC90771EE1036400EC3BF1 /* WebService.swift */,
-				CD22FE431EE8E9F500EB5196 /* DownloadManager.swift */,
+				CD2400501EF9ADEF00F92D16 /* BaseOperation.swift */,
+				CD2400521EF9B10F00F92D16 /* DownloadOperation.swift */,
+				CD24005F1EF9C3B500F92D16 /* DownloadController.swift */,
 			);
 			name = Networking;
 			sourceTree = "<group>";
@@ -112,12 +129,25 @@
 			name = Protocols;
 			sourceTree = "<group>";
 		};
+		CDAB79591EF9E1FB004E5D44 /* Application */ = {
+			isa = PBXGroup;
+			children = (
+				CDEC90631EE1033000EC3BF1 /* AppDelegate.swift */,
+				F20DAA741EE5DA3C00672380 /* AppCoordinator.swift */,
+			);
+			path = Application;
+			sourceTree = "<group>";
+		};
 		CDB11D451EE82F9300229519 /* Misc */ = {
 			isa = PBXGroup;
 			children = (
+				CDEC90691EE1033000EC3BF1 /* Main.storyboard */,
+				CDEC906C1EE1033000EC3BF1 /* Assets.xcassets */,
+				CDEC906E1EE1033000EC3BF1 /* LaunchScreen.storyboard */,
 				CD28889B1EE82954003DE6E0 /* Notifications.swift */,
 				CDB11D461EE8D1A600229519 /* FileStorage.swift */,
 				CDB11D481EE8D28700229519 /* Cache.swift */,
+				CD2400541EF9B17900F92D16 /* PersistenceManager.swift */,
 			);
 			name = Misc;
 			sourceTree = "<group>";
@@ -150,8 +180,8 @@
 			isa = PBXGroup;
 			children = (
 				CDEC907F1EE64E7E00EC3BF1 /* 2xWWDC.entitlements */,
-				CDEC90631EE1033000EC3BF1 /* AppDelegate.swift */,
-				F20DAA741EE5DA3C00672380 /* AppCoordinator.swift */,
+				CDEC90711EE1033000EC3BF1 /* Info.plist */,
+				CDAB79591EF9E1FB004E5D44 /* Application */,
 				CD17DEB61EE19B5A00962A51 /* Controller */,
 				CD17DEB31EE19B3500962A51 /* Model */,
 				CDDD935B1EEE235900E414A6 /* View */,
@@ -159,10 +189,6 @@
 				CD17DEB41EE19B3E00962A51 /* Networking */,
 				CD4DAFFE1EE7875C0084B010 /* Extensions */,
 				CDB11D451EE82F9300229519 /* Misc */,
-				CDEC90691EE1033000EC3BF1 /* Main.storyboard */,
-				CDEC906C1EE1033000EC3BF1 /* Assets.xcassets */,
-				CDEC906E1EE1033000EC3BF1 /* LaunchScreen.storyboard */,
-				CDEC90711EE1033000EC3BF1 /* Info.plist */,
 			);
 			path = 2xWWDC;
 			sourceTree = "<group>";
@@ -248,23 +274,29 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD24005C1EF9B73500F92D16 /* DownloadInfo.swift in Sources */,
+				CD2400531EF9B10F00F92D16 /* DownloadOperation.swift in Sources */,
 				F20DAA751EE5DA3C00672380 /* AppCoordinator.swift in Sources */,
 				CDEC907A1EE1036B00EC3BF1 /* Session.swift in Sources */,
 				CDEC90681EE1033000EC3BF1 /* DetailViewController.swift in Sources */,
 				CDEC90661EE1033000EC3BF1 /* MasterViewController.swift in Sources */,
 				CDEC90781EE1036400EC3BF1 /* WebService.swift in Sources */,
 				CD17DEB21EE19A8700962A51 /* SessionResource.swift in Sources */,
+				CD2400511EF9ADEF00F92D16 /* BaseOperation.swift in Sources */,
 				CDDD935A1EEE220A00E414A6 /* HairlineView.swift in Sources */,
 				CD9BDF5D1EE30926003FBCB9 /* StoryboardInitializable.swift in Sources */,
-				CD22FE441EE8E9F500EB5196 /* DownloadManager.swift in Sources */,
+				CD2400551EF9B17900F92D16 /* PersistenceManager.swift in Sources */,
 				CD28889C1EE82954003DE6E0 /* Notifications.swift in Sources */,
 				CDEC907C1EE103A000EC3BF1 /* Year.swift in Sources */,
+				CD2400601EF9C3B500F92D16 /* DownloadController.swift in Sources */,
 				CDB11D491EE8D28700229519 /* Cache.swift in Sources */,
 				CD4DAFFD1EE784490084B010 /* UITableView+AnimatedUpdate.swift in Sources */,
 				CDB11D471EE8D1A600229519 /* FileStorage.swift in Sources */,
+				CD2400581EF9B45700F92D16 /* Model.xcdatamodeld in Sources */,
 				CDEC90641EE1033000EC3BF1 /* AppDelegate.swift in Sources */,
 				CD17DEB81EE19B8B00962A51 /* SessionTranscript.swift in Sources */,
 				CDEC90811EE64ED100EC3BF1 /* UserDefaults+Application.swift in Sources */,
+				CD24005A1EF9B6A300F92D16 /* DownloadingSession.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -435,6 +467,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		CD2400561EF9B45700F92D16 /* Model.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				CD2400571EF9B45700F92D16 /* Model.xcdatamodel */,
+			);
+			currentVersion = CD2400571EF9B45700F92D16 /* Model.xcdatamodel */;
+			path = Model.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = CDEC90581EE1033000EC3BF1 /* Project object */;
 }

@@ -9,6 +9,7 @@
 import UIKit
 import AVKit
 import AVFoundation
+import CoreData
 
 protocol DetailViewControllerActionDelegate: class
 {
@@ -34,6 +35,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         didSet
         {
             title = session?.session
+            print(session?.id ?? "session nil")
             fetchResources()
         }
     }
@@ -59,6 +61,9 @@ final class DetailViewController: UIViewController, StoryboardInitializable
             }
         }
     }
+    
+    var resourceLinks: Set<String>?
+    var downloadInfo: DownloadInfo?
     
     let highLightColor = UIColor(white: 0.0, alpha: 1.0)
     let lowLightColor = UIColor(white: 0.0, alpha: 0.33)
@@ -177,7 +182,11 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         }
         
         guard let session = session else { return }
-        let url = FileManager.default.fileExists(atPath: FileStorage().url(for: session.videoURL).path) ? FileStorage().url(for: session.videoURL) : session.videoURL
+        let url = FileManager.default.fileExists(atPath: FileStorage().url(for: session.videoURL).path)
+            ? FileStorage().url(for: session.videoURL)
+            : session.videoURL
+        
+        checkForDownload()
         setPlayer(with: url)
     }
     
@@ -229,9 +238,16 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         
         NotificationCenter.default.addObserver(for: sessionDidFinishingDownloading, object: nil, queue: .main)
         { [weak self] (payload) in
-            guard self?.sessionResources?.sessionResources.contains(where: { $0.link == payload.cloudURL}) == true else { return }
+            guard self?.resourceLinks?.contains(payload.cloudURL.absoluteString) == true else { return }
             self?.progressView?.isHidden = true
+            self?.downloadInfo = nil
             self?.resourcesTableView?.reloadData()
+        }
+        
+        NotificationCenter.default.addObserver(for: sessionDidProgressDownloading, object: nil, queue: .main)
+        { [weak self] (payload) in
+            guard self?.resourceLinks?.contains(payload.downloadURLValue) == true else { return }
+            self?.progressView.progress = payload.progress
         }
         
         NotificationCenter.when(.UIApplicationDidEnterBackground)
@@ -247,9 +263,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
             {
                 UserDefaults.standard.setVideoProgress(session, progress: 0.0)
             }
-            
         }
-        
     }
     
     fileprivate func setPlayer(with url: URL)
@@ -276,6 +290,28 @@ final class DetailViewController: UIViewController, StoryboardInitializable
                 strongSelf.transcriptTableView.scrollToRow(at: newIndex, at: .top, animated: true)
             }
             
+        }
+    }
+    
+    fileprivate func checkForDownload()
+    {
+        guard let session = self.session else { return }
+        let context = PersistenceManager.sharedContainer.viewContext
+        let fetchRequest: NSFetchRequest<DownloadInfo> = DownloadInfo.fetchRequest()
+        do
+        {
+            let downloads = try context.fetch(fetchRequest)
+            guard let download = downloads.first(where: { $0.session?.id == session.id }),
+                  let downloadStatus = download.status else { return }
+            if (downloadStatus == .completed || downloadStatus == .failed)
+            {
+                self.downloadInfo = download
+            }
+            progressView.isHidden = (downloadStatus == .completed || downloadStatus == .failed)
+        }
+        catch
+        {
+            print(error.localizedDescription)
         }
     }
     
@@ -323,17 +359,9 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         self.progressView.isHidden = false
         let location = sender.convert(sender.bounds.origin, to: resourcesTableView)
         guard let indexPath = resourcesTableView.indexPathForRow(at: location),
-            let resource = sessionResources?.sessionResources[indexPath.row] else { return  }
-        DownloadManager.shared.onProgress =
-        { [weak self] progress in
-            DispatchQueue.main.async
-            {
-                self?.progressView.progress = progress
-                    
-            }
-        }
-        let task = DownloadManager.shared.activate().downloadTask(with: resource.link)
-        task.resume()
+              let resource = sessionResources?.sessionResources[indexPath.row],
+              let session = self.session else { return  }
+        DownloadController.shared.download(session: session, videoURL: resource.link)
     }
     
     func didPressTrash(sender: UIButton)
@@ -341,8 +369,25 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         let location = sender.convert(sender.bounds.origin, to: resourcesTableView)
         guard let indexPath = resourcesTableView.indexPathForRow(at: location),
             let resource = sessionResources?.sessionResources[indexPath.row] else { return  }
-        try? FileManager.default.removeItem(at: FileStorage().url(for: resource.link))
-        resourcesTableView.reloadRows(at: [indexPath], with: .none)
+        let context = PersistenceManager.sharedContainer.viewContext
+        
+        let fetchRequest: NSFetchRequest<DownloadInfo> = DownloadInfo.fetchRequest()
+        do
+        {
+            let downloads = try context.fetch(fetchRequest)
+            let download = downloads.first { $0.session?.id == session?.id }
+            if let downloadInfo = download
+            {
+                context.delete(downloadInfo)
+                try PersistenceManager.save(context: context)
+            }
+            try FileManager.default.removeItem(at: FileStorage().url(for: resource.link))
+            resourcesTableView.reloadRows(at: [indexPath], with: .none)
+        }
+        catch
+        {
+            print(error.localizedDescription)
+        }
     }
     
     func didPressShare()
@@ -378,7 +423,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         case (1.6 ... 2.1):
             segmentedControl.selectedSegmentIndex = 2
         default:
-            segmentedControl.selectedSegmentIndex = 2
+            segmentedControl.selectedSegmentIndex = 0
         }
     }
     
@@ -389,7 +434,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
               let resource = SessionResource.resource(for: session) else { return }
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         CachedWebservice.load(resource)
-        { (response) in
+        { [weak self] (response) in
             DispatchQueue.main.async
             {
                 UIApplication.shared.isNetworkActivityIndicatorVisible = false
@@ -400,7 +445,8 @@ final class DetailViewController: UIViewController, StoryboardInitializable
                 case .success(let resources):
                     if let resources = resources
                     {
-                        self.sessionResources = resources
+                        self?.sessionResources = resources
+                        self?.resourceLinks = Set(self?.sessionResources?.sessionResources.map { $0.link.absoluteString } ?? [String]())
                     }
                 }
             }
@@ -467,6 +513,11 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
                     button.addTarget(self, action: #selector(self.didPressDownload(sender:)), for: .touchUpInside)
                     button.setImage(#imageLiteral(resourceName: "download"), for: .normal)
                     button.tintColor = .black
+                    if downloadInfo != nil
+                    {
+                        button.alpha = 0.5
+                        button.isEnabled = false
+                    }
                 }
                 
                 cell.accessoryView = button

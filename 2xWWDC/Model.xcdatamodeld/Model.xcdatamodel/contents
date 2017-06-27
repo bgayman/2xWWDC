@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="13154.26" systemVersion="16F73" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="DownloadInfo" representedClassName="DownloadInfo" syncable="YES" codeGenerationType="category">
+        <attribute name="downloadedAt" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="path" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="progress" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="sizeInBytes" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="statusValue" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="session" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DownloadingSession" inverseName="downloadInfo" inverseEntity="DownloadingSession" syncable="YES"/>
+    </entity>
+    <entity name="DownloadingSession" representedClassName="DownloadingSession" syncable="YES" codeGenerationType="category">
+        <attribute name="videoURLValue" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="downloadInfo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DownloadInfo" inverseName="session" inverseEntity="DownloadInfo" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="DownloadingSession" positionX="-290" positionY="54" width="128" height="73"/>
+        <element name="DownloadInfo" positionX="-36" positionY="27" width="128" height="133"/>
+    </elements>
+</model>
