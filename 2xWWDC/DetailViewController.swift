@@ -279,10 +279,9 @@ final class DetailViewController: UIViewController, StoryboardInitializable
             guard let strongSelf = self,
                   let sessionResources = strongSelf.sessionResources else { return }
             if let nextSentence = sessionResources.transcript.sentences.first(where: { strongSelf.avPlayerViewController.player?.currentTime().seconds ?? 0.0 < $0.startTime }),
-               let nextIndex = sessionResources.transcript.sentences.index(of: nextSentence),
-               sessionResources.transcript.sentences.indices ~= nextIndex - 1
+               let nextIndex = sessionResources.transcript.sentences.index(of: nextSentence)
             {
-                let newIndex = IndexPath(row: nextIndex - 1, section: 0)
+                let newIndex = IndexPath(row: nextIndex, section: 0)
                 let lastCell = strongSelf.transcriptTableView?.cellForRow(at: strongSelf.transcriptIndex)
                 lastCell?.textLabel?.textColor = strongSelf.lowLightColor
                 let newCell = strongSelf.transcriptTableView?.cellForRow(at: newIndex)
