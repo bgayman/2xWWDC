@@ -395,7 +395,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
                 try PersistenceManager.save(context: context)
             }
             try FileManager.default.removeItem(at: FileStorage().url(for: resource.link))
-            resourcesTableView.reloadRows(at: [indexPath], with: .none)
+            resourcesTableView.reloadData()
         }
         catch
         {
