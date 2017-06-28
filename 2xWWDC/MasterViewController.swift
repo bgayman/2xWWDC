@@ -156,31 +156,8 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
     {
         NotificationCenter.default.addObserver(for: sessionDidFinishingWatching, object: nil, queue: nil)
         { [weak self] (payload) in
-            guard let strongSelf = self,
-                  let yearIndex = self?.years.index(where: { $0.year == payload.session.year }),
-                  let sessionIndex = self?.years[yearIndex].sessions.index(where: { $0.session == payload.session.session}) else { return }
-            let indexPath: IndexPath
-            switch strongSelf.searchState
-            {
-            case .normal:
-                indexPath = IndexPath(row: sessionIndex, section: yearIndex)
-            case .searching:
-                if let sectionIndex = self?.searchResults.index(where: { $0.year == payload.session.year }),
-                   let rowIndex = self?.searchResults[yearIndex].sessions.index(where: { $0.session == payload.session.session})
-                {
-                    indexPath = IndexPath(row: rowIndex, section: sectionIndex)
-                }
-                else
-                {
-                    return
-                }
-                
-            }
-            
-            if self?.view.window != nil
-            {
-                self?.tableView.reloadRows(at: [indexPath], with: .automatic)
-            }
+            guard let strongSelf = self else { return }
+            strongSelf.tableView?.reloadData()
         }
         
         NotificationCenter.default.addObserver(for: sessionDidFinishingDownloading, object: nil, queue: .main)

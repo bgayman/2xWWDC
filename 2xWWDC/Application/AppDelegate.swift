@@ -96,6 +96,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     {
         completionHandler()
     }
+    
+    func application(_ application: UIApplication, performActionFor shortcutItem: UIApplicationShortcutItem, completionHandler: @escaping (Bool) -> Void)
+    {
+        guard let userInfo = shortcutItem.userInfo,
+              let year = userInfo["year"] as? String,
+              let session = userInfo["session"] as? String
+        else
+        {
+            completionHandler(false)
+            return
+        }
+        appCoordinator?.showSession(for: year, session: session)
+        completionHandler(true)
+    }
 
 }
 

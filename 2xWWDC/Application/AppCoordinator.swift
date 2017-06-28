@@ -26,6 +26,53 @@ final class AppCoordinator: MasterViewControllerActionDelegate, DetailViewContro
         masterViewController.actionDelegate = self
     }
     
+    func showSession(for year: String, session: String)
+    {
+        switch splitViewController.viewControllers.count
+        {
+        case 1:
+            guard let navController = splitViewController.viewControllers.first as? UINavigationController else { return }
+            if let detailVC = navController.topViewController as? DetailViewController
+            {
+                guard !(detailVC.session?.session == session && detailVC.session?.year == year) else { return }
+                navController.popToRootViewController(animated: true)
+            }
+        case 2:
+            guard let navController = splitViewController.viewControllers.last as? UINavigationController else { return }
+            if let detailVC = navController.topViewController as? DetailViewController
+            {
+                guard !(detailVC.session?.session == session && detailVC.session?.year == year) else { return }
+                break
+            }
+        default:
+            break
+        }
+        
+        UIApplication.shared.isNetworkActivityIndicatorVisible = true
+        CachedWebservice.load(Year.all)
+        { (response) in
+            DispatchQueue.main.async
+            {
+                UIApplication.shared.isNetworkActivityIndicatorVisible = false
+                switch response
+                {
+                case .success(let returnYears):
+                    if let year = returnYears?.first(where: { $0.year == year }),
+                       let session = year.sessions.first(where: { $0.session == session })
+                    {
+                        let detail = DetailViewController.makeFromStoryboard()
+                        detail.session = session
+                        detail.actionDelegate = self
+                        let nav = UINavigationController(rootViewController: detail)
+                        self.splitViewController.showDetailViewController(nav, sender: self)
+                    }
+                case .error(let error):
+                    print(error)
+                }
+            }
+        }
+    }
+    
     func didSelection(session: Session, in masterViewController: MasterViewController)
     {
         let detail = DetailViewController.makeFromStoryboard()

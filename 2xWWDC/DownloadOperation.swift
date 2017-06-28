@@ -24,7 +24,6 @@ final class DownloadOperation: BaseOperation, URLSessionDownloadDelegate
         do
         {
             let downloads = try self.context.fetch(fetchRequest)
-            print(downloads)
             return downloads.first { $0.session?.id == self.sessionID }
         }
         catch

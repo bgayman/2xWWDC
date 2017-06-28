@@ -35,7 +35,6 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         didSet
         {
             title = session?.session
-            print(session?.id ?? "session nil")
             fetchResources()
         }
     }
@@ -188,6 +187,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         
         checkForDownload()
         setPlayer(with: url)
+        addQuickAction()
     }
     
     deinit
@@ -276,20 +276,20 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         addObservers()
         avPlayerViewController.player?.addPeriodicTimeObserver(forInterval: CMTime(seconds: 1, preferredTimescale: 1), queue: .main)
         { [weak self] (time) in
-            guard let strongSelf = self else { return }
-            guard strongSelf.transcriptIndex.row + 1 < (strongSelf.sessionResources?.transcript.sentences.count ?? 0) else { return }
-            let nextSentence = strongSelf.sessionResources?.transcript.sentences[strongSelf.transcriptIndex.row + 1]
-            if time.seconds > nextSentence?.startTime ?? 0.0
+            guard let strongSelf = self,
+                  let sessionResources = strongSelf.sessionResources else { return }
+            if let nextSentence = sessionResources.transcript.sentences.first(where: { strongSelf.avPlayerViewController.player?.currentTime().seconds ?? 0.0 < $0.startTime }),
+               let nextIndex = sessionResources.transcript.sentences.index(of: nextSentence),
+               sessionResources.transcript.sentences.indices ~= nextIndex - 1
             {
-                let newIndex = IndexPath(row: strongSelf.transcriptIndex.row + 1, section: 0)
-                let lastCell = strongSelf.transcriptTableView.cellForRow(at: strongSelf.transcriptIndex)
+                let newIndex = IndexPath(row: nextIndex - 1, section: 0)
+                let lastCell = strongSelf.transcriptTableView?.cellForRow(at: strongSelf.transcriptIndex)
                 lastCell?.textLabel?.textColor = strongSelf.lowLightColor
-                let newCell = strongSelf.transcriptTableView.cellForRow(at: newIndex)
+                let newCell = strongSelf.transcriptTableView?.cellForRow(at: newIndex)
                 newCell?.textLabel?.textColor = strongSelf.highLightColor
                 strongSelf.transcriptIndex = newIndex
-                strongSelf.transcriptTableView.scrollToRow(at: newIndex, at: .top, animated: true)
+                strongSelf.transcriptTableView?.scrollToRow(at: newIndex, at: .top, animated: true)
             }
-            
         }
     }
     
@@ -319,6 +319,20 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     {
         let options: NSKeyValueObservingOptions = [.new, .old, .initial]
         avPlayerViewController.player?.addObserver(self, forKeyPath: #keyPath(AVPlayer.rate), options: options, context: &observerContext)
+    }
+    
+    private func addQuickAction()
+    {
+        var quickActions = UIApplication.shared.shortcutItems ?? [UIApplicationShortcutItem]()
+        guard !quickActions.contains(where: { $0.localizedTitle == self.session?.title }),
+              let session = self.session else { return }
+        if quickActions.count >= 4
+        {
+            quickActions = Array(quickActions.dropFirst())
+        }
+        let shortcut = UIApplicationShortcutItem(type: "session", localizedTitle: session.title, localizedSubtitle: session.year, icon: nil, userInfo: ["year": session.year, "session": session.session])
+        quickActions.append(shortcut)
+        UIApplication.shared.shortcutItems = quickActions
     }
     
     // MARK: - Actions
@@ -611,7 +625,9 @@ extension DetailViewController: UIScrollViewDelegate
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
         guard scrollView === self.scrollView else { return }
-        selectionIndicatorLeadinConstraint.constant = (scrollView.contentOffset.x / CGFloat(sessionResources?.transcript.sentences.isEmpty == true ? 2 : 3)) + 8.0
+        let factor: CGFloat = sessionResources?.transcript.sentences.isEmpty == true ? 2 : 3
+        let offset = scrollView.contentOffset.x / view.bounds.width
+        selectionIndicatorLeadinConstraint.constant = (scrollView.contentOffset.x + 8.0 - (8.0 * offset)) / factor
     }
 }
 
