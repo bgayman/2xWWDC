@@ -25,6 +25,7 @@ struct Sentence
 {
     let text: String
     let startTime: TimeInterval
+    let endTime: TimeInterval
 }
 
 extension Sentence
@@ -33,9 +34,13 @@ extension Sentence
     {
         guard let text = json["text"] as? String,
               let startTimeString = json["startTime"] as? String,
-              let startTime = TimeInterval(startTimeString) else { return nil }
+              let startTime = TimeInterval(startTimeString),
+              let endTimeString = json["endTime"] as? String,
+              let endTime = TimeInterval(endTimeString) else { return nil }
+        
         self.text = text
         self.startTime = startTime
+        self.endTime = endTime
     }
 }
 

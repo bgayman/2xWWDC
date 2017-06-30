@@ -16,6 +16,7 @@ protocol DetailViewControllerActionDelegate: class
     func didPress(sessionResource: SessionResource, in detailViewController: DetailViewController)
     func didForceTouch(sessionResource: SessionResource?, in detailViewController: DetailViewController) -> UIViewController?
     func didCommitPreview(context: UIViewControllerPreviewing, viewControllerToCommit: UIViewController, in detailViewController: DetailViewController)
+    func showSession(for year: String, session: String)
 }
 
 final class DetailViewController: UIViewController, StoryboardInitializable
@@ -25,6 +26,41 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     {
         case normal
         case searching
+    }
+    
+    enum ResourceSections
+    {
+        case downloads(downloads: [SessionResource])
+        case documents(documents: [SessionResource])
+        case videos(videos: [SessionResource])
+        
+        static func sections(for sessionResources: SessionResources) -> [ResourceSections]
+        {
+            var sections = [ResourceSections]()
+            if !sessionResources.downloads.isEmpty
+            {
+                sections.append(.downloads(downloads: sessionResources.downloads))
+            }
+            if !sessionResources.documents.isEmpty
+            {
+                sections.append(.documents(documents: sessionResources.documents))
+            }
+            if !sessionResources.videos.isEmpty
+            {
+                sections.append(.videos(videos: sessionResources.videos))
+            }
+            return sections
+        }
+        
+        var raw: Int
+        {
+            switch self
+            {
+            case .downloads: return 0
+            case .documents: return 0
+            case .videos: return 0
+            }
+        }
     }
     
     // MARK: - Properties
@@ -158,7 +194,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         
         toolbar.isTranslucent = true
         let searchBarItem = UIBarButtonItem(customView: searchController.searchBar)
-        searchBarItem.width = 300.0
+        searchBarItem.width = 200.0
         toolbar.setItems([shareBarButton, UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
                           searchBarItem,
                           UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)], animated: false)
@@ -278,7 +314,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         { [weak self] (time) in
             guard let strongSelf = self,
                   let sessionResources = strongSelf.sessionResources else { return }
-            if let nextSentence = sessionResources.transcript.sentences.first(where: { strongSelf.avPlayerViewController.player?.currentTime().seconds ?? 0.0 < $0.startTime }),
+            if let nextSentence = sessionResources.transcript.sentences.first(where: { strongSelf.avPlayerViewController.player?.currentTime().seconds ?? 0.0 > $0.startTime && strongSelf.avPlayerViewController.player?.currentTime().seconds ?? 0.0 < $0.endTime }),
                let nextIndex = sessionResources.transcript.sentences.index(of: nextSentence)
             {
                 let newIndex = IndexPath(row: nextIndex, section: 0)
@@ -470,6 +506,39 @@ final class DetailViewController: UIViewController, StoryboardInitializable
 // MARK: - UITableViewDelegate
 extension DetailViewController: UITableViewDelegate, UITableViewDataSource
 {
+    func numberOfSections(in tableView: UITableView) -> Int
+    {
+        guard tableView === resourcesTableView else { return 1 }
+        switch self.searchState
+        {
+        case .normal:
+            guard let sessionResources = self.sessionResources else { return 1 }
+            return ResourceSections.sections(for: sessionResources).count
+        case .searching:
+            return 1
+        }
+        
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String?
+    {
+        guard tableView === resourcesTableView else { return nil }
+        switch self.searchState
+        {
+        case .normal:
+            guard let sessionResources = self.sessionResources else { return nil }
+            let section = ResourceSections.sections(for: sessionResources)[section]
+            switch section
+            {
+            case .documents: return "Documents"
+            case .downloads: return "Downloads"
+            case .videos: return "Related Videos"
+            }
+        case .searching:
+            return nil
+        }
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
     {
         if tableView === resourcesTableView
@@ -477,7 +546,17 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
             switch searchState
             {
             case .normal:
-                return sessionResources?.sessionResources.count ?? 0
+                guard let sessionResources = self.sessionResources else { return 0 }
+                let section = ResourceSections.sections(for: sessionResources)[section]
+                switch section
+                {
+                case .documents(let documents):
+                    return documents.count
+                case .videos(let videos):
+                    return videos.count
+                case .downloads(let downloads):
+                    return downloads.count
+                }
             case .searching:
                 return filteredSessionResources.count
             }
@@ -501,7 +580,22 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
             switch searchState
             {
             case .normal:
-                sessionResource = sessionResources?.sessionResources[indexPath.row]
+                guard let sessionResources = self.sessionResources else
+                {
+                    sessionResource = nil
+                    break
+                }
+                let section = ResourceSections.sections(for: sessionResources)[indexPath.section]
+                switch section
+                {
+                case .documents(let documents):
+                    sessionResource = documents[indexPath.row]
+                case .videos(let videos):
+                    sessionResource = videos[indexPath.row]
+                case .downloads(let downloads):
+                    sessionResource = downloads[indexPath.row]
+                }
+                
                 cell.textLabel?.text = sessionResource?.title
             case .searching:
                 sessionResource = filteredSessionResources[indexPath.row]
@@ -532,11 +626,12 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
                         button.isEnabled = false
                     }
                 }
-                
+                cell.accessoryType = .none
                 cell.accessoryView = button
             }
             else
             {
+                cell.accessoryView = nil
                 cell.accessoryType = .disclosureIndicator
             }
             return cell
@@ -572,12 +667,33 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
             switch searchState
             {
             case .normal:
-                selectedResource = sessionResources?.sessionResources[indexPath.row]
+                guard let sessionResources = self.sessionResources else
+                {
+                    selectedResource = nil
+                    break
+                }
+                let section = ResourceSections.sections(for: sessionResources)[indexPath.section]
+                switch section
+                {
+                case .documents(let documents):
+                    selectedResource = documents[indexPath.row]
+                case .videos(let videos):
+                    let video = videos[indexPath.row]
+                    guard let sessionNumber = video.link.pathComponents.last else { return }
+                    let sessionString = "Session \(sessionNumber)"
+                    let yearString = video.link.pathComponents.first(where: { $0.hasPrefix("wwdc") })
+                    guard let year = yearString?.components(separatedBy: "wwdc").last else { return }
+                    self.actionDelegate?.showSession(for: year, session: sessionString)
+                    return
+                case .downloads(let downloads):
+                    selectedResource = downloads[indexPath.row]
+                }
             case .searching:
                 selectedResource = filteredSessionResources[indexPath.row]
                 searchController.searchBar.resignFirstResponder()
             }
-            guard let resource = selectedResource else { return }
+            guard let resource = selectedResource,
+                  !resource.isRelativePath else { return }
             if resource.title.lowercased().contains("hd") || resource.title.lowercased().contains("sd")
             {
                 UserDefaults.standard.setVideoProgress(session, progress: avPlayerViewController.player?.currentItem?.currentTime().seconds ?? 0.0)

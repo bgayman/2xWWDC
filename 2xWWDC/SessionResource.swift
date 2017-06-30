@@ -12,6 +12,11 @@ struct SessionResource
 {
     let title: String
     let link: URL
+    
+    var isRelativePath: Bool
+    {
+        return link.scheme?.hasPrefix("http") == true
+    }
 }
 
 extension SessionResource
@@ -29,6 +34,9 @@ extension SessionResource
 struct SessionResources
 {
     let sessionResources: [SessionResource]
+    let downloads: [SessionResource]
+    let videos: [SessionResource]
+    let documents: [SessionResource]
     let transcript: Transcript
 }
 
@@ -51,9 +59,15 @@ extension SessionResources
     init?(json: JSONDictionary)
     {
         guard let resourceDicts = json["resources"] as? [JSONDictionary],
-              let transcriptArray = json["transcript"] as? [JSONDictionary] else { return nil }
+              let transcriptArray = json["transcript"] as? [JSONDictionary],
+              let downloadDicts = json["downloads"] as? [JSONDictionary],
+              let documentDicts = json["documents"] as? [JSONDictionary],
+              let videoDicts = json["videos"] as? [JSONDictionary] else { return nil }
         self.sessionResources = resourceDicts.flatMap(SessionResource.init)
         self.transcript = Transcript(json: transcriptArray)
+        self.downloads = downloadDicts.flatMap(SessionResource.init)
+        self.videos = videoDicts.flatMap(SessionResource.init)
+        self.documents = documentDicts.flatMap(SessionResource.init)
     }
 }
 

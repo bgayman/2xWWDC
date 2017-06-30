@@ -32,7 +32,8 @@ final class AppCoordinator: MasterViewControllerActionDelegate, DetailViewContro
         {
         case 1:
             guard let navController = splitViewController.viewControllers.first as? UINavigationController else { return }
-            if let detailVC = navController.topViewController as? DetailViewController
+            if let embededNav = navController.topViewController as? UINavigationController,
+               let detailVC = embededNav.topViewController as? DetailViewController
             {
                 guard !(detailVC.session?.session == session && detailVC.session?.year == year) else { return }
                 navController.popToRootViewController(animated: true)
@@ -47,7 +48,7 @@ final class AppCoordinator: MasterViewControllerActionDelegate, DetailViewContro
         default:
             break
         }
-        
+        var hasShownSession = false
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         CachedWebservice.load(Year.all)
         { (response) in
@@ -60,11 +61,18 @@ final class AppCoordinator: MasterViewControllerActionDelegate, DetailViewContro
                     if let year = returnYears?.first(where: { $0.year == year }),
                        let session = year.sessions.first(where: { $0.session == session })
                     {
-                        let detail = DetailViewController.makeFromStoryboard()
-                        detail.session = session
-                        detail.actionDelegate = self
-                        let nav = UINavigationController(rootViewController: detail)
-                        self.splitViewController.showDetailViewController(nav, sender: self)
+                        if hasShownSession == false
+                        {
+                            hasShownSession = true
+                            let detail = DetailViewController.makeFromStoryboard()
+                            detail.session = session
+                            detail.actionDelegate = self
+                            let nav = UINavigationController(rootViewController: detail)
+                            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5)
+                            {
+                                self.splitViewController.showDetailViewController(nav, sender: self)
+                            }
+                        }
                     }
                 case .error(let error):
                     print(error)
