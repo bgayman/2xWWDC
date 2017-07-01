@@ -27,7 +27,7 @@ extension Year
 
 extension Year
 {
-    static let allSessionsURL = URL(string: "https://bradgayman.com/videos/all.json")!
+    static let allSessionsURL = URL(string: "https://wwdcvideos-multivalued-undernsong.mybluemix.net/all.json")!
     static let sessions2017URL = URL(string: "https://wwdcvideos-multivalued-undernsong.mybluemix.net/year/2017")!
     
     static let all = Resource<[Year]>(url: Year.allSessionsURL)
