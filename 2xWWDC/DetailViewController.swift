@@ -162,15 +162,15 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         return shareBarButton
     }()
     
-    lazy var filteredSessionResources: [SessionResource]! =
+    var filteredSessionResources: [SessionResource]
     {
         return self.sessionResources?.sessionResources.filter { $0.title.lowercased().contains(self.searchString.lowercased()) } ?? []
-    }()
+    }
     
-    lazy var filteredTranscript: [Sentence]! =
+    var filteredTranscript: [Sentence]
     {
         return self.sessionResources?.transcript.sentences.filter { $0.text.lowercased().contains(self.searchString.lowercased()) } ?? []
-    }()
+    }
     
     // MARK: - Computed Properties
     var searchState: SearchState
@@ -754,8 +754,6 @@ extension DetailViewController: UISearchResultsUpdating
     {
         guard let text = searchController.searchBar.text else { return }
         searchString = text
-        filteredSessionResources = nil
-        filteredTranscript = nil
         resourcesTableView.reloadData()
         if sessionResources?.transcript.sentences.isEmpty == false
         {
