@@ -692,8 +692,7 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
                 selectedResource = filteredSessionResources[indexPath.row]
                 searchController.searchBar.resignFirstResponder()
             }
-            guard let resource = selectedResource,
-                  !resource.isRelativePath else { return }
+            guard let resource = selectedResource else { return }
             if resource.title.lowercased().contains("hd") || resource.title.lowercased().contains("sd")
             {
                 UserDefaults.standard.setVideoProgress(session, progress: avPlayerViewController.player?.currentItem?.currentTime().seconds ?? 0.0)
@@ -711,6 +710,7 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
             }
             else
             {
+                guard !resource.isRelativePath else { return }
                 actionDelegate?.didPress(sessionResource: resource, in: self)
             }
         }
