@@ -120,17 +120,16 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
     {
         super.viewDidLoad()
         title = "Sessions"
-        // Commented out for Xcode 8
-//        if #available(iOS 11.0, *)
-//        {
-//            navigationController?.navigationBar.prefersLargeTitles = true
-//            navigationItem.largeTitleDisplayMode = .always
-//            navigationItem.searchController = searchController
-//        }
-//        else
-//        {
+        if #available(iOS 11.0, *)
+        {
+            navigationController?.navigationBar.prefersLargeTitles = true
+            navigationItem.largeTitleDisplayMode = .always
+            navigationItem.searchController = searchController
+        }
+        else
+        {
             tableView.tableHeaderView = searchController.searchBar
-//        }
+        }
         tableView.estimatedRowHeight = 50.0
         tableView.rowHeight = UITableViewAutomaticDimension
         definesPresentationContext = true
