@@ -414,10 +414,8 @@ extension MasterViewController: UITableViewDragDelegate
         case .searching:
             year = self.searchResults[indexPath.section]
         }
-        let session = year.sessions[indexPath.row]
-        let sessionClass = SessionClass(session: session)
-        let provider = NSItemProvider(object: sessionClass)
-        let dragItem = UIDragItem(itemProvider: provider)
-        return [dragItem]
+        let wwSession = year.sessions[indexPath.row]
+        let dragURLItem = UIDragItem(itemProvider: NSItemProvider(object: wwSession.website as NSURL))
+        return [dragURLItem]
     }
 }

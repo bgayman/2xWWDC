@@ -10,6 +10,7 @@ import UIKit
 import AVKit
 import AVFoundation
 import CoreData
+import MobileCoreServices
 
 protocol DetailViewControllerActionDelegate: class
 {
@@ -684,12 +685,15 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
                     selectedResource = documents[indexPath.row]
                 case .videos(let videos):
                     let video = videos[indexPath.row]
-                    guard let sessionNumber = video.link.pathComponents.last else { return }
-                    let sessionString = "Session \(sessionNumber)"
-                    let yearString = video.link.pathComponents.first(where: { $0.hasPrefix("wwdc") })
-                    guard let year = yearString?.components(separatedBy: "wwdc").last else { return }
-                    self.actionDelegate?.showSession(for: year, session: sessionString)
-                    return
+                    let yearAndSession = self.yearAndSession(for: video.link)
+                    switch yearAndSession
+                    {
+                    case (.some(let year), .some(let sessionString)):
+                        self.actionDelegate?.showSession(for: year, session: sessionString)
+                        return
+                    default:
+                        return
+                    }
                 case .downloads(let downloads):
                     selectedResource = downloads[indexPath.row]
                 }
@@ -736,6 +740,15 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
             transcriptIndex = indexPath
             tableView.reloadRows(at: [indexPath], with: .none)
         }
+    }
+    
+    func yearAndSession(for url: URL) -> (year: String?, session: String?)
+    {
+        guard let sessionNumber = url.pathComponents.last else { return (nil, nil) }
+        let sessionString = "Session \(sessionNumber)"
+        let yearString = url.pathComponents.first(where: { $0.hasPrefix("wwdc") })
+        guard let year = yearString?.components(separatedBy: "wwdc").last else { return (nil, sessionString) }
+        return (year, sessionString)
     }
 }
 
@@ -823,12 +836,12 @@ extension DetailViewController: UIDropInteractionDelegate
 {
     func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool
     {
-        return session.hasItemsConforming(toTypeIdentifiers: [Session.customTypeIdentifier])
+        return session.hasItemsConforming(toTypeIdentifiers: [kUTTypeURL as String])
     }
     
     func dropInteraction(_ interaction: UIDropInteraction, sessionDidUpdate session: UIDropSession) -> UIDropProposal
     {
-        if session.hasItemsConforming(toTypeIdentifiers: [Session.customTypeIdentifier])
+        if session.hasItemsConforming(toTypeIdentifiers: [kUTTypeURL as String])
         {
             return UIDropProposal(operation: .copy)
         }
@@ -837,18 +850,24 @@ extension DetailViewController: UIDropInteractionDelegate
     
     func dropInteraction(_ interaction: UIDropInteraction, performDrop session: UIDropSession)
     {
-        guard session.hasItemsConforming(toTypeIdentifiers: [Session.customTypeIdentifier]) else { return }
-        session.loadObjects(ofClass: SessionClass.self)
+        session.loadObjects(ofClass: NSURL.self)
         { (itemProviders) in
-            guard let itemProvider = itemProviders.first as? SessionClass else { return }
+            guard let itemProvider = itemProviders.first as? NSURL else { return }
+            let yearAndSession = self.yearAndSession(for: itemProvider as URL)
             DispatchQueue.main.async
             {
-                guard let actionDelegate = self.actionDelegate else
+                guard yearAndSession.year != nil, yearAndSession.session != nil else
                 {
-                    (UIApplication.shared.delegate as? AppDelegate)?.appCoordinator?.showSession(for: itemProvider.session.year, session: itemProvider.session.session)
+                    
+                    (UIApplication.shared.delegate as? AppDelegate)?.appCoordinator?.didPress(sessionResource: SessionResource(title: "", link: itemProvider as URL), in: self)
                     return
                 }
-                actionDelegate.showSession(for: itemProvider.session.year, session: itemProvider.session.session)
+                guard let actionDelegate = self.actionDelegate else
+                {
+                    (UIApplication.shared.delegate as? AppDelegate)?.appCoordinator?.showSession(for: yearAndSession.year!, session: yearAndSession.session!)
+                    return
+                }
+                actionDelegate.showSession(for: yearAndSession.year!, session: yearAndSession.session!)
             }
         }
     }
