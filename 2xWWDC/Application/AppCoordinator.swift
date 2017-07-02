@@ -28,6 +28,7 @@ final class AppCoordinator: MasterViewControllerActionDelegate, DetailViewContro
     
     func showSession(for year: String, session: String)
     {
+        var needsDelay = false
         switch splitViewController.viewControllers.count
         {
         case 1:
@@ -36,6 +37,7 @@ final class AppCoordinator: MasterViewControllerActionDelegate, DetailViewContro
                let detailVC = embededNav.topViewController as? DetailViewController
             {
                 guard !(detailVC.session?.session == session && detailVC.session?.year == year) else { return }
+                needsDelay = true
                 navController.popToRootViewController(animated: true)
             }
         case 2:
@@ -43,7 +45,14 @@ final class AppCoordinator: MasterViewControllerActionDelegate, DetailViewContro
             if let detailVC = navController.topViewController as? DetailViewController
             {
                 guard !(detailVC.session?.session == session && detailVC.session?.year == year) else { return }
-                break
+                if let masterNav = splitViewController.viewControllers.first as? UINavigationController,
+                   let masterVC = masterNav.topViewController as? MasterViewController,
+                   let yearIndex = masterVC.years.index(where: {$0.year == year}),
+                    let sessionIndex = masterVC.years[yearIndex].sessions.index(where: { $0.session == session })
+                {
+                    let indexPath = IndexPath(row: sessionIndex, section: yearIndex)
+                    masterVC.tableView.selectRow(at: indexPath, animated: true, scrollPosition: .top)
+                }
             }
         default:
             break
@@ -68,7 +77,8 @@ final class AppCoordinator: MasterViewControllerActionDelegate, DetailViewContro
                             detail.session = session
                             detail.actionDelegate = self
                             let nav = UINavigationController(rootViewController: detail)
-                            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5)
+                            let delay = needsDelay ? 0.5 : 0.0
+                            DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + delay)
                             {
                                 self.splitViewController.showDetailViewController(nav, sender: self)
                             }

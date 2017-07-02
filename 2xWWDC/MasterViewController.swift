@@ -125,6 +125,7 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
             navigationController?.navigationBar.prefersLargeTitles = true
             navigationItem.largeTitleDisplayMode = .always
             navigationItem.searchController = searchController
+            navigationItem.hidesSearchBarWhenScrolling = false
         }
         else
         {
