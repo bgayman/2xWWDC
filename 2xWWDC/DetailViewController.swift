@@ -211,6 +211,11 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         
         setupNotifications()
         
+        if #available(iOS 11.0, *)
+        {
+            view.addInteraction(UIDropInteraction(delegate: self))
+        }
+        
         if traitCollection.forceTouchCapability == .available
         {
             registerForPreviewing(with: self, sourceView: view)
@@ -813,3 +818,38 @@ extension DetailViewController: UIViewControllerPreviewingDelegate
     }
 }
 
+@available(iOS 11.0, *)
+extension DetailViewController: UIDropInteractionDelegate
+{
+    func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool
+    {
+        return session.hasItemsConforming(toTypeIdentifiers: [Session.customTypeIdentifier])
+    }
+    
+    func dropInteraction(_ interaction: UIDropInteraction, sessionDidUpdate session: UIDropSession) -> UIDropProposal
+    {
+        if session.hasItemsConforming(toTypeIdentifiers: [Session.customTypeIdentifier])
+        {
+            return UIDropProposal(operation: .copy)
+        }
+        return UIDropProposal(operation: .forbidden)
+    }
+    
+    func dropInteraction(_ interaction: UIDropInteraction, performDrop session: UIDropSession)
+    {
+        guard session.hasItemsConforming(toTypeIdentifiers: [Session.customTypeIdentifier]) else { return }
+        session.loadObjects(ofClass: SessionClass.self)
+        { (itemProviders) in
+            guard let itemProvider = itemProviders.first as? SessionClass else { return }
+            DispatchQueue.main.async
+            {
+                guard let actionDelegate = self.actionDelegate else
+                {
+                    (UIApplication.shared.delegate as? AppDelegate)?.appCoordinator?.showSession(for: itemProvider.session.year, session: itemProvider.session.session)
+                    return
+                }
+                actionDelegate.showSession(for: itemProvider.session.year, session: itemProvider.session.session)
+            }
+        }
+    }
+}

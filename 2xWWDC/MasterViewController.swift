@@ -133,6 +133,10 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
         }
         tableView.estimatedRowHeight = 50.0
         tableView.rowHeight = UITableViewAutomaticDimension
+        if #available(iOS 11.0, *)
+        {
+            tableView.dragDelegate = self
+        } 
         definesPresentationContext = true
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(self.fetchSessions), for: .valueChanged)
@@ -397,3 +401,23 @@ extension MasterViewController: UISearchResultsUpdating
     }
 }
 
+@available(iOS 11.0, *)
+extension MasterViewController: UITableViewDragDelegate
+{
+    func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem]
+    {
+        let year: Year
+        switch searchState
+        {
+        case .normal:
+            year = self.years[indexPath.section]
+        case .searching:
+            year = self.searchResults[indexPath.section]
+        }
+        let session = year.sessions[indexPath.row]
+        let sessionClass = SessionClass(session: session)
+        let provider = NSItemProvider(object: sessionClass)
+        let dragItem = UIDragItem(itemProvider: provider)
+        return [dragItem]
+    }
+}
