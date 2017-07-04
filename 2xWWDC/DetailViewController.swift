@@ -216,6 +216,11 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         {
             view.addInteraction(UIDropInteraction(delegate: self))
         }
+        if #available(iOS 11.0, *),
+            self.traitCollection.userInterfaceIdiom == .pad
+        {
+            resourcesTableView.dragDelegate = self
+        }
         
         if traitCollection.forceTouchCapability == .available
         {
@@ -750,6 +755,40 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
         guard let year = yearString?.components(separatedBy: "wwdc").last else { return (nil, sessionString) }
         return (year, sessionString)
     }
+    
+    fileprivate func sessionResource(for indexPath: IndexPath) -> SessionResource?
+    {
+        var selectedResource: SessionResource? = nil
+        switch searchState
+        {
+        case .normal:
+            guard let sessionResources = self.sessionResources else
+            {
+                selectedResource = nil
+                break
+            }
+            let section = ResourceSections.sections(for: sessionResources)[indexPath.section]
+            switch section
+            {
+            case .documents(let documents):
+                selectedResource = documents[indexPath.row]
+            case .videos(let videos):
+                selectedResource = videos[indexPath.row]
+            case .downloads(let downloads):
+                selectedResource = downloads[indexPath.row]
+            }
+        case .searching:
+            selectedResource = filteredSessionResources[indexPath.row]
+        }
+        return selectedResource
+    }
+    
+    @available(iOS 11.0, *)
+    fileprivate func dragItem(for sessionResource: SessionResource) -> [UIDragItem]
+    {
+        let url = sessionResource.isRelativePath ? URL(string: "https://developer.apple.com\(sessionResource.link.absoluteString)")! : sessionResource.link
+        return [UIDragItem(itemProvider: NSItemProvider(object: url as NSURL))]
+    }
 }
 
 // MARK: - UIScrollViewDelegate
@@ -869,6 +908,41 @@ extension DetailViewController: UIDropInteractionDelegate
                 }
                 actionDelegate.showSession(for: yearAndSession.year!, session: yearAndSession.session!)
             }
+        }
+    }
+}
+
+@available(iOS 11.0, *)
+extension DetailViewController: UITableViewDragDelegate
+{
+    func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem]
+    {
+        let selectedResource = sessionResource(for: indexPath)
+        
+        guard let resource = selectedResource else { return [] }
+        if resource.title.lowercased().contains("hd") || resource.title.lowercased().contains("sd")
+        {
+            if FileManager.default.fileExists(atPath: FileStorage().url(for: resource.link).path)
+            {
+                let url = FileStorage().url(for: resource.link)
+                if let itemProvider = NSItemProvider(contentsOf: url)
+                {
+                    let dragURLItem = UIDragItem(itemProvider: itemProvider)
+                    return [dragURLItem]
+                }
+                else
+                {
+                    return dragItem(for: resource)
+                }
+            }
+            else
+            {
+                return dragItem(for: resource)
+            }
+        }
+        else
+        {
+            return dragItem(for: resource)
         }
     }
 }
