@@ -56,12 +56,13 @@ struct Resource<A>
 
 extension Resource
 {
-    init(url: URL, method: HttpMethod<Any> = .get, parseJSON: @escaping (Any) -> A?)
+    init(url: URL, httpMethod: HttpMethod<JSONDictionary> = .get, parseJSON: @escaping (Any) -> A?)
     {
         self.url = url
-        self.method = method.map
+        self.method = httpMethod.map
         { json in
-            try! JSONSerialization.data(withJSONObject: json, options: [])
+            let data : Data = Resource.query(json).data(using: .utf8, allowLossyConversion: false)!
+            return data
         }
         self.parse =
         { data in
@@ -73,6 +74,64 @@ extension Resource
     var cacheKey: String
     {
         return "cache" + String(url.hashValue)
+    }
+    
+    static private func queryComponents(fromKey key: String, value: Any) -> [(String, String)]
+    {
+        var components: [(String, String)] = []
+        
+        if let dictionary = value as? [String: Any]
+        {
+            for (nestedKey, value) in dictionary
+            {
+                components += queryComponents(fromKey: "\(key)[\(nestedKey)]", value: value)
+            }
+        }
+        else if let array = value as? [Any]
+        {
+            for value in array
+            {
+                components += queryComponents(fromKey: "\(key)[]", value: value)
+            }
+        }
+        else if let value = value as? NSNumber
+        {
+            components.append((escape(key), escape("\(value)")))
+        }
+        else if let bool = value as? Bool
+        {
+            components.append((escape(key), escape((bool ? "1" : "0"))))
+        }
+        else
+        {
+            components.append((escape(key), escape("\(value)")))
+        }
+        
+        return components
+    }
+    
+    
+    static private func escape(_ string: String) -> String
+    {
+        let generalDelimitersToEncode = ":#[]@" // does not include "?" or "/" due to RFC 3986 - Section 3.4
+        let subDelimitersToEncode = "!$&'()*+,;="
+        
+        var allowedCharacterSet = CharacterSet.urlQueryAllowed
+        allowedCharacterSet.remove(charactersIn: "\(generalDelimitersToEncode)\(subDelimitersToEncode)")
+        
+        var escaped = ""
+        escaped = string.addingPercentEncoding(withAllowedCharacters: allowedCharacterSet) ?? string
+        return escaped
+    }
+    
+    static private func query(_ parameters: [String: Any]) -> String {
+        var components: [(String, String)] = []
+        
+        for key in parameters.keys.sorted(by: <) {
+            let value = parameters[key]!
+            components += queryComponents(fromKey: key, value: value)
+        }
+        return components.map { "\($0)=\($1)" }.joined(separator: "&")
     }
 }
 
@@ -93,7 +152,8 @@ final class Webservice
 {
     static func load<A>(resource: Resource<A>, completion: @escaping (WebServiceResponse<A>) -> ())
     {
-        let request = URLRequest(resource: resource)
+        var request = URLRequest(resource: resource)
+        request.setValue("Bearer \(YelpToken.instance?.token ?? "")", forHTTPHeaderField: "Authorization")
         URLSession.shared.dataTask(with: request)
         { (data, _, error) in
             if let error = error
@@ -105,37 +165,6 @@ final class Webservice
                 completion(.success(data.flatMap(resource.parse)))
             }
         }.resume()
-    }
-}
-
-final class CachedWebservice
-{
-    static let cache = Cache()
-    
-    static func load<A>(_ resource: Resource<A>, update: @escaping (WebServiceResponse<A>) -> ())
-    {
-        if let result = cache.load(resource)
-        {
-            update(.success(result))
-        }
-        let dataResource = Resource<Data>(url: resource.url, method: resource.method, parse: { $0 })
-        Webservice.load(resource: dataResource)
-        { (result) in
-            switch result
-            {
-            case let .error(error):
-                update(.error(error))
-            case let .success(data):
-                guard let data = data else
-                {
-                    
-                    update(.error("No Data" as! Error))
-                    return
-                }
-                CachedWebservice.cache.save(data, for: resource)
-                update(.success(resource.parse(data)))
-            }
-        }
     }
 }
 
