@@ -10,7 +10,7 @@ import UIKit
 
 extension NotificationCenter
 {
-    static func when(_ name: Notification.Name, perform block: @escaping (Notification) -> ())
+    @objc static func when(_ name: Notification.Name, perform block: @escaping (Notification) -> ())
     {
         NotificationCenter.default.addObserver(forName: name, object: nil, queue: .main, using: block)
     }

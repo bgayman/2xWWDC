@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import MobileCoreServices
 
 struct ImageCache
 {
@@ -15,6 +16,8 @@ struct ImageCache
 
 struct Session
 {
+    static let customTypeIdentifier = "com.bradgayman.wwdcSession"
+    
     let title: String
     let year: String
     let website: URL
@@ -133,9 +136,78 @@ extension Session: Comparable, Equatable, Hashable
     }
 }
 
+final class SessionClass: NSObject
+{
+    let session: Session
+    
+    private override init()
+    {
+        fatalError()
+    }
+    
+    init(session: Session)
+    {
+        self.session = session
+        super.init()
+    }
+}
+
+extension SessionClass: NSItemProviderWriting
+{
+    static var writableTypeIdentifiersForItemProvider: [String]
+    {
+        return [kUTTypeURL as String, kUTTypeUTF8PlainText as String, Session.customTypeIdentifier]
+    }
+    
+    func loadData(withTypeIdentifier typeIdentifier: String, forItemProviderCompletionHandler completionHandler: @escaping (Data?, Error?) -> Void) -> Progress?
+    {
+        if typeIdentifier == kUTTypeURL as String
+        {
+            completionHandler(self.session.website.dataRepresentation, nil)
+        }
+        else if typeIdentifier == kUTTypeUTF8PlainText as String
+        {
+            let string = "\(self.session.title), \(self.session.year), \(self.session.session)"
+            completionHandler(string.data(using: .utf8), nil)
+        }
+        else if typeIdentifier == Session.customTypeIdentifier
+        {
+            let dict = self.session.dictionaryRep
+            let data = try? JSONSerialization.data(withJSONObject: dict, options: [])
+            completionHandler(data, nil)
+        }
+        return nil
+    }
+    
+    
+}
+
+extension SessionClass: NSItemProviderReading
+{
+    static func object(withItemProviderData data: Data, typeIdentifier: String) throws -> SessionClass
+    {
+        return try SessionClass(itemProviderData: data, typeIdentifier: typeIdentifier)
+    }
+    
+    static var readableTypeIdentifiersForItemProvider: [String]
+    {
+        return [Session.customTypeIdentifier]
+    }
+    
+    @objc convenience init(itemProviderData data: Data, typeIdentifier: String) throws
+    {
+        let dict = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] ?? [:]
+        let emptySession = Session(title: "", year: "", website: URL(string:"http://apple.com")!, videoURL: URL(string:"http://apple.com")!, session: "", description: "", imageLink: nil)
+        let session = Session.init(json: dict, year: dict["year"] as? String ?? "2017")
+        self.init(session: session ?? emptySession)
+    }
+    
+    
+}
+
 extension UIImage
 {
-    func scaleImage(scaleFactor: CGFloat) -> UIImage
+    @objc func scaleImage(scaleFactor: CGFloat) -> UIImage
     {
         let size = self.size.applying(CGAffineTransform(scaleX: scaleFactor, y: scaleFactor))
         let hasAlpha = false

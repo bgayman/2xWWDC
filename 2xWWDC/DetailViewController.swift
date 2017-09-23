@@ -10,6 +10,7 @@ import UIKit
 import AVKit
 import AVFoundation
 import CoreData
+import MobileCoreServices
 
 protocol DetailViewControllerActionDelegate: class
 {
@@ -64,7 +65,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     }
     
     // MARK: - Properties
-    var observerContext = 8
+    @objc var observerContext = 8
     
     var session: Session?
     {
@@ -97,11 +98,11 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         }
     }
     
-    var resourceLinks: Set<String>?
-    var downloadInfo: DownloadInfo?
+    @objc var resourceLinks: Set<String>?
+    @objc var downloadInfo: DownloadInfo?
     
-    let highLightColor = UIColor(white: 0.0, alpha: 1.0)
-    let lowLightColor = UIColor(white: 0.0, alpha: 0.33)
+    @objc let highLightColor = UIColor(white: 0.0, alpha: 1.0)
+    @objc let lowLightColor = UIColor(white: 0.0, alpha: 0.33)
     weak var actionDelegate: DetailViewControllerActionDelegate?
     
     // MARK: - Outlets
@@ -121,11 +122,11 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     @IBOutlet weak var toolbarBottomConstraint: NSLayoutConstraint!
     @IBOutlet weak var progressView: UIProgressView!
     
-    var transcriptIndex = IndexPath(row: 0, section: 0)
-    var searchString = ""
+    @objc var transcriptIndex = IndexPath(row: 0, section: 0)
+    @objc var searchString = ""
     
     // MARK: - Lazy Vars
-    lazy var avPlayerViewController: AVPlayerViewController =
+    @objc lazy var avPlayerViewController: AVPlayerViewController =
     {
         let avPlayerViewController = AVPlayerViewController()
         self.addChildViewController(avPlayerViewController)
@@ -144,7 +145,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         return avPlayerViewController
     }()
     
-    lazy var searchController: UISearchController =
+    @objc lazy var searchController: UISearchController =
     {
         let searchController = UISearchController(searchResultsController: nil)
         searchController.searchResultsUpdater = self
@@ -156,12 +157,13 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         return searchController
     }()
     
-    lazy var shareBarButton: UIBarButtonItem =
+    @objc lazy var shareBarButton: UIBarButtonItem =
     {
         let shareBarButton = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(self.didPressShare))
         return shareBarButton
     }()
     
+    // MARK: - Computed Properties
     var filteredSessionResources: [SessionResource]
     {
         return self.sessionResources?.sessionResources.filter { $0.title.lowercased().contains(self.searchString.lowercased()) } ?? []
@@ -172,7 +174,6 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         return self.sessionResources?.transcript.sentences.filter { $0.text.lowercased().contains(self.searchString.lowercased()) } ?? []
     }
     
-    // MARK: - Computed Properties
     var searchState: SearchState
     {
         if searchController.isActive && !searchString.isEmpty
@@ -187,10 +188,10 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     {
         super.viewDidLoad()
         
-//        if #available(iOS 11.0, *)
-//        {
-//            navigationItem.largeTitleDisplayMode = .never
-//        }
+        if #available(iOS 11.0, *)
+        {
+            navigationItem.largeTitleDisplayMode = .never
+        }
         
         toolbar.isTranslucent = true
         let searchBarItem = UIBarButtonItem(customView: searchController.searchBar)
@@ -210,6 +211,16 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         transcriptTableView.rowHeight = UITableViewAutomaticDimension
         
         setupNotifications()
+        
+        if #available(iOS 11.0, *)
+        {
+            view.addInteraction(UIDropInteraction(delegate: self))
+        }
+        if #available(iOS 11.0, *),
+            self.traitCollection.userInterfaceIdiom == .pad
+        {
+            resourcesTableView.dragDelegate = self
+        }
         
         if traitCollection.forceTouchCapability == .available
         {
@@ -401,7 +412,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         scrollView.setContentOffset(CGPoint(x: view.bounds.width * 2, y: 0.0), animated: true)
     }
     
-    func didPressDownload(sender: UIButton)
+    @objc func didPressDownload(sender: UIButton)
     {
         sender.alpha = 0.5
         sender.isEnabled = false
@@ -413,7 +424,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         DownloadController.shared.download(session: session, videoURL: resource.link)
     }
     
-    func didPressTrash(sender: UIButton)
+    @objc func didPressTrash(sender: UIButton)
     {
         let location = sender.convert(sender.bounds.origin, to: resourcesTableView)
         guard let indexPath = resourcesTableView.indexPathForRow(at: location),
@@ -439,7 +450,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         }
     }
     
-    func didPressShare()
+    @objc func didPressShare()
     {
         guard let session = self.session else { return }
         let activityVC = UIActivityViewController(activityItems: [session.website], applicationActivities: nil)
@@ -477,7 +488,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     }
     
     // MARK: - Networking
-    func fetchResources()
+    @objc func fetchResources()
     {
         guard let session = self.session,
               let resource = SessionResource.resource(for: session) else { return }
@@ -599,9 +610,9 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
                 cell.textLabel?.text = sessionResource?.title
             case .searching:
                 sessionResource = filteredSessionResources[indexPath.row]
-                let attribString = NSMutableAttributedString(string: sessionResource?.title ?? "", attributes: [NSForegroundColorAttributeName: UIColor.black])
+                let attribString = NSMutableAttributedString(string: sessionResource?.title ?? "", attributes: [NSAttributedStringKey.foregroundColor: UIColor.black])
                 let range = ((sessionResource?.title.lowercased() ?? "") as NSString).range(of: searchString.lowercased())
-                attribString.addAttributes([NSForegroundColorAttributeName: UIColor.orange], range: range)
+                attribString.addAttributes([NSAttributedStringKey.foregroundColor: UIColor.orange], range: range)
                 cell.textLabel?.attributedText = attribString
             }
             if sessionResource?.title.lowercased().contains("hd") == true || sessionResource?.title.lowercased().contains("sd") == true
@@ -648,9 +659,9 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
                 cell.textLabel?.textColor = indexPath == transcriptIndex ? highLightColor : lowLightColor
             case .searching:
                 sentence = filteredTranscript[indexPath.row]
-                let attribString = NSMutableAttributedString(string: sentence?.text ?? "", attributes: [NSForegroundColorAttributeName: indexPath == transcriptIndex ? highLightColor : lowLightColor])
+                let attribString = NSMutableAttributedString(string: sentence?.text ?? "", attributes: [NSAttributedStringKey.foregroundColor: indexPath == transcriptIndex ? highLightColor : lowLightColor])
                 let range = ((sentence?.text.lowercased() ?? "") as NSString).range(of: searchString.lowercased())
-                attribString.addAttributes([NSForegroundColorAttributeName: UIColor.orange], range: range)
+                attribString.addAttributes([NSAttributedStringKey.foregroundColor: UIColor.orange], range: range)
                 cell.textLabel?.attributedText = attribString
             }
             
@@ -679,12 +690,15 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
                     selectedResource = documents[indexPath.row]
                 case .videos(let videos):
                     let video = videos[indexPath.row]
-                    guard let sessionNumber = video.link.pathComponents.last else { return }
-                    let sessionString = "Session \(sessionNumber)"
-                    let yearString = video.link.pathComponents.first(where: { $0.hasPrefix("wwdc") })
-                    guard let year = yearString?.components(separatedBy: "wwdc").last else { return }
-                    self.actionDelegate?.showSession(for: year, session: sessionString)
-                    return
+                    let yearAndSession = self.yearAndSession(for: video.link)
+                    switch yearAndSession
+                    {
+                    case (.some(let year), .some(let sessionString)):
+                        self.actionDelegate?.showSession(for: year, session: sessionString)
+                        return
+                    default:
+                        return
+                    }
                 case .downloads(let downloads):
                     selectedResource = downloads[indexPath.row]
                 }
@@ -733,6 +747,49 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
             tableView.reloadRows(at: [indexPath], with: .none)
         }
     }
+    
+    func yearAndSession(for url: URL) -> (year: String?, session: String?)
+    {
+        guard let sessionNumber = url.pathComponents.last else { return (nil, nil) }
+        let sessionString = "Session \(sessionNumber)"
+        let yearString = url.pathComponents.first(where: { $0.hasPrefix("wwdc") })
+        guard let year = yearString?.components(separatedBy: "wwdc").last else { return (nil, sessionString) }
+        return (year, sessionString)
+    }
+    
+    fileprivate func sessionResource(for indexPath: IndexPath) -> SessionResource?
+    {
+        var selectedResource: SessionResource? = nil
+        switch searchState
+        {
+        case .normal:
+            guard let sessionResources = self.sessionResources else
+            {
+                selectedResource = nil
+                break
+            }
+            let section = ResourceSections.sections(for: sessionResources)[indexPath.section]
+            switch section
+            {
+            case .documents(let documents):
+                selectedResource = documents[indexPath.row]
+            case .videos(let videos):
+                selectedResource = videos[indexPath.row]
+            case .downloads(let downloads):
+                selectedResource = downloads[indexPath.row]
+            }
+        case .searching:
+            selectedResource = filteredSessionResources[indexPath.row]
+        }
+        return selectedResource
+    }
+    
+    @available(iOS 11.0, *)
+    fileprivate func dragItem(for sessionResource: SessionResource) -> [UIDragItem]
+    {
+        let url = sessionResource.isRelativePath ? URL(string: "https://developer.apple.com\(sessionResource.link.absoluteString)")! : sessionResource.link
+        return [UIDragItem(itemProvider: NSItemProvider(object: url as NSURL))]
+    }
 }
 
 // MARK: - UIScrollViewDelegate
@@ -761,8 +818,8 @@ extension DetailViewController: UISearchResultsUpdating
         }
         
         let range = ((session?.description.lowercased() ?? "") as NSString).range(of: searchString.lowercased())
-        let attribDescription = NSMutableAttributedString(string: session?.description ?? "", attributes: [NSForegroundColorAttributeName: UIColor.black])
-        attribDescription.addAttributes([NSForegroundColorAttributeName: UIColor.orange], range: range)
+        let attribDescription = NSMutableAttributedString(string: session?.description ?? "", attributes: [NSAttributedStringKey.foregroundColor: UIColor.black])
+        attribDescription.addAttributes([NSAttributedStringKey.foregroundColor: UIColor.orange], range: range)
         
         textView.attributedText = attribDescription
     }
@@ -814,3 +871,79 @@ extension DetailViewController: UIViewControllerPreviewingDelegate
     }
 }
 
+@available(iOS 11.0, *)
+extension DetailViewController: UIDropInteractionDelegate
+{
+    func dropInteraction(_ interaction: UIDropInteraction, canHandle session: UIDropSession) -> Bool
+    {
+        return session.hasItemsConforming(toTypeIdentifiers: [kUTTypeURL as String])
+    }
+    
+    func dropInteraction(_ interaction: UIDropInteraction, sessionDidUpdate session: UIDropSession) -> UIDropProposal
+    {
+        if session.hasItemsConforming(toTypeIdentifiers: [kUTTypeURL as String])
+        {
+            return UIDropProposal(operation: .copy)
+        }
+        return UIDropProposal(operation: .forbidden)
+    }
+    
+    func dropInteraction(_ interaction: UIDropInteraction, performDrop session: UIDropSession)
+    {
+        session.loadObjects(ofClass: NSURL.self)
+        { (itemProviders) in
+            guard let itemProvider = itemProviders.first as? NSURL else { return }
+            let yearAndSession = self.yearAndSession(for: itemProvider as URL)
+            DispatchQueue.main.async
+            {
+                guard yearAndSession.year != nil, yearAndSession.session != nil else
+                {
+                    
+                    (UIApplication.shared.delegate as? AppDelegate)?.appCoordinator?.didPress(sessionResource: SessionResource(title: "", link: itemProvider as URL), in: self)
+                    return
+                }
+                guard let actionDelegate = self.actionDelegate else
+                {
+                    (UIApplication.shared.delegate as? AppDelegate)?.appCoordinator?.showSession(for: yearAndSession.year!, session: yearAndSession.session!)
+                    return
+                }
+                actionDelegate.showSession(for: yearAndSession.year!, session: yearAndSession.session!)
+            }
+        }
+    }
+}
+
+@available(iOS 11.0, *)
+extension DetailViewController: UITableViewDragDelegate
+{
+    func tableView(_ tableView: UITableView, itemsForBeginning session: UIDragSession, at indexPath: IndexPath) -> [UIDragItem]
+    {
+        let selectedResource = sessionResource(for: indexPath)
+        
+        guard let resource = selectedResource else { return [] }
+        if resource.title.lowercased().contains("hd") || resource.title.lowercased().contains("sd")
+        {
+            if FileManager.default.fileExists(atPath: FileStorage().url(for: resource.link).path)
+            {
+                let url = FileStorage().url(for: resource.link)
+                if let itemProvider = NSItemProvider(contentsOf: url)
+                {
+                    let dragURLItem = UIDragItem(itemProvider: itemProvider)
+                    return [dragURLItem]
+                }
+                else
+                {
+                    return dragItem(for: resource)
+                }
+            }
+            else
+            {
+                return dragItem(for: resource)
+            }
+        }
+        else
+        {
+            return dragItem(for: resource)
+        }
+    }
+}

@@ -15,7 +15,7 @@ struct SessionResource
     
     var isRelativePath: Bool
     {
-        return link.scheme?.hasPrefix("http") == true
+        return (link.scheme?.hasPrefix("http") ?? false) == false 
     }
 }
 

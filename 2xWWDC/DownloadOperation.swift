@@ -11,14 +11,14 @@ import CoreData
 
 final class DownloadOperation: BaseOperation, URLSessionDownloadDelegate
 {
-    let url: URL
-    let sessionID: Int
+    @objc let url: URL
+    @objc let sessionID: Int
     
-    lazy var context: NSManagedObjectContext = PersistenceManager.sharedContainer.newBackgroundContext()
+    @objc lazy var context: NSManagedObjectContext = PersistenceManager.sharedContainer.newBackgroundContext()
     
-    let config = URLSessionConfiguration.background(withIdentifier: "\(Bundle.main.bundleIdentifier!).background")
+    @objc let config = URLSessionConfiguration.background(withIdentifier: "\(Bundle.main.bundleIdentifier!).background")
     
-    lazy var downloadInfo: DownloadInfo! =
+    @objc lazy var downloadInfo: DownloadInfo! =
     {
         let fetchRequest: NSFetchRequest<DownloadInfo> = DownloadInfo.fetchRequest()
         do
@@ -33,15 +33,15 @@ final class DownloadOperation: BaseOperation, URLSessionDownloadDelegate
         }
     }()
     
-    lazy var session: URLSession =
+    @objc lazy var session: URLSession =
     {
         let session = URLSession(configuration: self.config, delegate: self, delegateQueue: nil)
         return session
     }()
     
-    var downloadTask: URLSessionDownloadTask?
+    @objc var downloadTask: URLSessionDownloadTask?
     
-    init(url: URL, sessionID: Int)
+    @objc init(url: URL, sessionID: Int)
     {
         self.url = url
         self.sessionID = sessionID
