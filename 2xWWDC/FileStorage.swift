@@ -10,9 +10,20 @@ import Foundation
 
 struct FileStorage
 {
-    static var shared = FileStorage()
+    static var sharedDocumentsDirectory = FileStorage(directory: FileManager.SearchPathDirectory.documentDirectory)
+    static var sharedCacheDirectory = FileStorage(directory: FileManager.SearchPathDirectory.cachesDirectory)
     
-    let baseURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+    let searchPathDirectory: FileManager.SearchPathDirectory
+    
+    init(directory: FileManager.SearchPathDirectory = .documentDirectory)
+    {
+        self.searchPathDirectory = directory
+    }
+    
+    var baseURL: URL
+    {
+        return try! FileManager.default.url(for: searchPathDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+    }
     
     subscript(key: String) -> Data?
     {
@@ -27,11 +38,5 @@ struct FileStorage
             let url = baseURL.appendingPathComponent(key)
             _ = try? newValue?.write(to: url)
         }
-    }
-    
-    func url(for url: URL) -> URL
-    {
-        let url = baseURL.appendingPathComponent("download\(url.hashValue).mp4")
-        return url
     }
 }
