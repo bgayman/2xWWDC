@@ -102,10 +102,10 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
     
     weak var actionDelegate: MasterViewControllerActionDelegate?
     
-    var searchString = ""
+    @objc var searchString = ""
     
     // MARK: - Lazy Init
-    lazy var searchController: UISearchController =
+    @objc lazy var searchController: UISearchController =
     {
         let searchController = UISearchController(searchResultsController: nil)
         searchController.searchResultsUpdater = self
@@ -156,7 +156,7 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
     }
     
     // MARK: - Notifications
-    func setupNotifications()
+    @objc func setupNotifications()
     {
         NotificationCenter.default.addObserver(for: sessionDidFinishingWatching, object: nil, queue: nil)
         { [weak self] (payload) in
@@ -181,7 +181,7 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
     }
     
     // MARK: - Networking
-    func fetchSessions()
+    @objc func fetchSessions()
     {
         UIApplication.shared.isNetworkActivityIndicatorVisible = true
         CachedWebservice.load(Year.all)
@@ -205,14 +205,14 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
     }
     
     // MARK: - Actions
-    func didPressFind()
+    @objc func didPressFind()
     {
         searchController.searchBar.becomeFirstResponder()
     }
     
-    func didPressOpen(keyCommand: UIKeyCommand)
+    @objc func didPressOpen(keyCommand: UIKeyCommand)
     {
-        guard let index = Int(keyCommand.input) else { return }
+        guard let index = Int(keyCommand.input!) else { return }
         
         let session: Session?
         switch searchState
@@ -228,7 +228,7 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
         }
     }
     
-    func didPressDone()
+    @objc func didPressDone()
     {
         searchController.isActive = false
     }
@@ -284,18 +284,18 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
 
         case .searching:
             session = self.searchResults[indexPath.section].sessions[indexPath.row]
-            let attribTitle = NSMutableAttributedString(string: session.title, attributes: [NSForegroundColorAttributeName: UIColor.black])
+            let attribTitle = NSMutableAttributedString(string: session.title, attributes: [NSAttributedStringKey.foregroundColor: UIColor.black])
             let range = (session.title.lowercased() as NSString).range(of: searchString.lowercased())
-            attribTitle.addAttributes([NSForegroundColorAttributeName: UIColor.orange], range: range)
+            attribTitle.addAttributes([NSAttributedStringKey.foregroundColor: UIColor.orange], range: range)
             cell.textLabel?.attributedText = attribTitle
             
             if session.description.lowercased().contains(searchString.lowercased())
             {
                 let range = (session.description.lowercased() as NSString).range(of: searchString.lowercased())
                 let substring = "...\((session.description as NSString).substring(from: range.location))"
-                let attribDescription = NSMutableAttributedString(string: substring, attributes: [NSForegroundColorAttributeName: UIColor.black])
+                let attribDescription = NSMutableAttributedString(string: substring, attributes: [NSAttributedStringKey.foregroundColor: UIColor.black])
                 let newRange = (substring.lowercased() as NSString).range(of: searchString.lowercased())
-                attribDescription.addAttributes([NSForegroundColorAttributeName: UIColor.orange], range: newRange)
+                attribDescription.addAttributes([NSAttributedStringKey.foregroundColor: UIColor.orange], range: newRange)
                 cell.detailTextLabel?.attributedText = attribDescription
             }
             else

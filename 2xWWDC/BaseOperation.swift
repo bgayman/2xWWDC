@@ -56,12 +56,12 @@ class BaseOperation: Operation
         execute()
     }
     
-    func execute()
+    @objc func execute()
     {
         fatalError("Did not override `execute()`")
     }
     
-    func finish()
+    @objc func finish()
     {
         _executing = false
         _finished = true

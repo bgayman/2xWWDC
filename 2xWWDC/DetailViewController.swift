@@ -65,7 +65,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     }
     
     // MARK: - Properties
-    var observerContext = 8
+    @objc var observerContext = 8
     
     var session: Session?
     {
@@ -98,11 +98,11 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         }
     }
     
-    var resourceLinks: Set<String>?
-    var downloadInfo: DownloadInfo?
+    @objc var resourceLinks: Set<String>?
+    @objc var downloadInfo: DownloadInfo?
     
-    let highLightColor = UIColor(white: 0.0, alpha: 1.0)
-    let lowLightColor = UIColor(white: 0.0, alpha: 0.33)
+    @objc let highLightColor = UIColor(white: 0.0, alpha: 1.0)
+    @objc let lowLightColor = UIColor(white: 0.0, alpha: 0.33)
     weak var actionDelegate: DetailViewControllerActionDelegate?
     
     // MARK: - Outlets
@@ -122,11 +122,11 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     @IBOutlet weak var toolbarBottomConstraint: NSLayoutConstraint!
     @IBOutlet weak var progressView: UIProgressView!
     
-    var transcriptIndex = IndexPath(row: 0, section: 0)
-    var searchString = ""
+    @objc var transcriptIndex = IndexPath(row: 0, section: 0)
+    @objc var searchString = ""
     
     // MARK: - Lazy Vars
-    lazy var avPlayerViewController: AVPlayerViewController =
+    @objc lazy var avPlayerViewController: AVPlayerViewController =
     {
         let avPlayerViewController = AVPlayerViewController()
         self.addChildViewController(avPlayerViewController)
@@ -145,7 +145,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         return avPlayerViewController
     }()
     
-    lazy var searchController: UISearchController =
+    @objc lazy var searchController: UISearchController =
     {
         let searchController = UISearchController(searchResultsController: nil)
         searchController.searchResultsUpdater = self
@@ -157,7 +157,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         return searchController
     }()
     
-    lazy var shareBarButton: UIBarButtonItem =
+    @objc lazy var shareBarButton: UIBarButtonItem =
     {
         let shareBarButton = UIBarButtonItem(barButtonSystemItem: .action, target: self, action: #selector(self.didPressShare))
         return shareBarButton
@@ -412,7 +412,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         scrollView.setContentOffset(CGPoint(x: view.bounds.width * 2, y: 0.0), animated: true)
     }
     
-    func didPressDownload(sender: UIButton)
+    @objc func didPressDownload(sender: UIButton)
     {
         sender.alpha = 0.5
         sender.isEnabled = false
@@ -424,7 +424,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         DownloadController.shared.download(session: session, videoURL: resource.link)
     }
     
-    func didPressTrash(sender: UIButton)
+    @objc func didPressTrash(sender: UIButton)
     {
         let location = sender.convert(sender.bounds.origin, to: resourcesTableView)
         guard let indexPath = resourcesTableView.indexPathForRow(at: location),
@@ -450,7 +450,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         }
     }
     
-    func didPressShare()
+    @objc func didPressShare()
     {
         guard let session = self.session else { return }
         let activityVC = UIActivityViewController(activityItems: [session.website], applicationActivities: nil)
@@ -488,7 +488,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     }
     
     // MARK: - Networking
-    func fetchResources()
+    @objc func fetchResources()
     {
         guard let session = self.session,
               let resource = SessionResource.resource(for: session) else { return }
@@ -610,9 +610,9 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
                 cell.textLabel?.text = sessionResource?.title
             case .searching:
                 sessionResource = filteredSessionResources[indexPath.row]
-                let attribString = NSMutableAttributedString(string: sessionResource?.title ?? "", attributes: [NSForegroundColorAttributeName: UIColor.black])
+                let attribString = NSMutableAttributedString(string: sessionResource?.title ?? "", attributes: [NSAttributedStringKey.foregroundColor: UIColor.black])
                 let range = ((sessionResource?.title.lowercased() ?? "") as NSString).range(of: searchString.lowercased())
-                attribString.addAttributes([NSForegroundColorAttributeName: UIColor.orange], range: range)
+                attribString.addAttributes([NSAttributedStringKey.foregroundColor: UIColor.orange], range: range)
                 cell.textLabel?.attributedText = attribString
             }
             if sessionResource?.title.lowercased().contains("hd") == true || sessionResource?.title.lowercased().contains("sd") == true
@@ -659,9 +659,9 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
                 cell.textLabel?.textColor = indexPath == transcriptIndex ? highLightColor : lowLightColor
             case .searching:
                 sentence = filteredTranscript[indexPath.row]
-                let attribString = NSMutableAttributedString(string: sentence?.text ?? "", attributes: [NSForegroundColorAttributeName: indexPath == transcriptIndex ? highLightColor : lowLightColor])
+                let attribString = NSMutableAttributedString(string: sentence?.text ?? "", attributes: [NSAttributedStringKey.foregroundColor: indexPath == transcriptIndex ? highLightColor : lowLightColor])
                 let range = ((sentence?.text.lowercased() ?? "") as NSString).range(of: searchString.lowercased())
-                attribString.addAttributes([NSForegroundColorAttributeName: UIColor.orange], range: range)
+                attribString.addAttributes([NSAttributedStringKey.foregroundColor: UIColor.orange], range: range)
                 cell.textLabel?.attributedText = attribString
             }
             
@@ -817,8 +817,8 @@ extension DetailViewController: UISearchResultsUpdating
         }
         
         let range = ((session?.description.lowercased() ?? "") as NSString).range(of: searchString.lowercased())
-        let attribDescription = NSMutableAttributedString(string: session?.description ?? "", attributes: [NSForegroundColorAttributeName: UIColor.black])
-        attribDescription.addAttributes([NSForegroundColorAttributeName: UIColor.orange], range: range)
+        let attribDescription = NSMutableAttributedString(string: session?.description ?? "", attributes: [NSAttributedStringKey.foregroundColor: UIColor.black])
+        attribDescription.addAttributes([NSAttributedStringKey.foregroundColor: UIColor.orange], range: range)
         
         textView.attributedText = attribDescription
     }

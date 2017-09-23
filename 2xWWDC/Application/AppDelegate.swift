@@ -44,7 +44,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
         appCoordinator = AppCoordinator(splitViewController: splitViewController)
         appCoordinator?.start()
         
-        let store = NSUbiquitousKeyValueStore.default()
+        let store = NSUbiquitousKeyValueStore.default
         NotificationCenter.default.addObserver(self, selector: #selector(self.updateKVStoreItems(notification:)), name: NSUbiquitousKeyValueStore.didChangeExternallyNotification, object: store)
         
         let audioSession = AVAudioSession.sharedInstance()
@@ -117,7 +117,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
 // MARK: - UKVStore Update
 extension AppDelegate
 {
-    func updateKVStoreItems(notification: Notification)
+    @objc func updateKVStoreItems(notification: Notification)
     {
         let userInfo = notification.userInfo
         guard let reasonForChange = userInfo?[NSUbiquitousKeyValueStoreChangeReasonKey] as? NSNumber else { return }
@@ -126,7 +126,7 @@ extension AppDelegate
         {
             if let changedKeys = userInfo?[NSUbiquitousKeyValueStoreChangedKeysKey] as? [String]
             {
-                let store = NSUbiquitousKeyValueStore.default()
+                let store = NSUbiquitousKeyValueStore.default
                 let userDefaults = UserDefaults.standard
                 for key in changedKeys
                 {

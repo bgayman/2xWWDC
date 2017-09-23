@@ -184,12 +184,17 @@ extension SessionClass: NSItemProviderWriting
 
 extension SessionClass: NSItemProviderReading
 {
+    static func object(withItemProviderData data: Data, typeIdentifier: String) throws -> SessionClass
+    {
+        return try SessionClass(itemProviderData: data, typeIdentifier: typeIdentifier)
+    }
+    
     static var readableTypeIdentifiersForItemProvider: [String]
     {
         return [Session.customTypeIdentifier]
     }
     
-    convenience init(itemProviderData data: Data, typeIdentifier: String) throws
+    @objc convenience init(itemProviderData data: Data, typeIdentifier: String) throws
     {
         let dict = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] ?? [:]
         let emptySession = Session(title: "", year: "", website: URL(string:"http://apple.com")!, videoURL: URL(string:"http://apple.com")!, session: "", description: "", imageLink: nil)
@@ -202,7 +207,7 @@ extension SessionClass: NSItemProviderReading
 
 extension UIImage
 {
-    func scaleImage(scaleFactor: CGFloat) -> UIImage
+    @objc func scaleImage(scaleFactor: CGFloat) -> UIImage
     {
         let size = self.size.applying(CGAffineTransform(scaleX: scaleFactor, y: scaleFactor))
         let hasAlpha = false

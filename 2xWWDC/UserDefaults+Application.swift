@@ -18,7 +18,7 @@ extension UserDefaults
     func setHasSeen(_ session: Session, hasSeen: Bool = true)
     {
         self.set(hasSeen, forKey: "\(session.year)\(session.session)")
-        NSUbiquitousKeyValueStore.default().set(true, forKey: "\(session.year)\(session.session)")
+        NSUbiquitousKeyValueStore.default.set(true, forKey: "\(session.year)\(session.session)")
     }
     
     func progress(_ session: Session?) -> Double
@@ -31,6 +31,6 @@ extension UserDefaults
     {
         guard let session = session else { return }
         self.set(progress, forKey: "progress\(session.year)\(session.session)")
-        NSUbiquitousKeyValueStore.default().set(progress, forKey: "progress\(session.year)\(session.session)")
+        NSUbiquitousKeyValueStore.default.set(progress, forKey: "progress\(session.year)\(session.session)")
     }
 }
