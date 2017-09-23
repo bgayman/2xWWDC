@@ -706,6 +706,7 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
                 selectedResource = filteredSessionResources[indexPath.row]
                 searchController.searchBar.resignFirstResponder()
             }
+            
             guard let resource = selectedResource else { return }
             if resource.title.lowercased().contains("hd") || resource.title.lowercased().contains("sd")
             {
