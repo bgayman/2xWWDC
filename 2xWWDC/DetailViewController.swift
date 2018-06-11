@@ -130,7 +130,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     {
         let avPlayerViewController = AVPlayerViewController()
         self.addChildViewController(avPlayerViewController)
-        avPlayerViewController.view.frame = self.videoContainerView.bounds
+        avPlayerViewController.view.frame = self.videoContainerView?.bounds ?? .zero
         self.videoContainerView.addSubview(avPlayerViewController.view)
         avPlayerViewController.didMove(toParentViewController: self)
         avPlayerViewController.view.translatesAutoresizingMaskIntoConstraints = false
@@ -251,6 +251,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     
     override func viewDidDisappear(_ animated: Bool)
     {
+        guard view != nil else { return }
         avPlayerViewController.player?.pause()
         if let item = avPlayerViewController.player?.currentItem,
            let session = self.session,
@@ -871,6 +872,7 @@ extension DetailViewController: UIViewControllerPreviewingDelegate
     }
 }
 
+// MARK: - UIDropInteractionDelegate
 @available(iOS 11.0, *)
 extension DetailViewController: UIDropInteractionDelegate
 {

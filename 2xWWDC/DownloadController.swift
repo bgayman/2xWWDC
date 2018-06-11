@@ -19,7 +19,7 @@ final class DownloadController
     {
         let context = PersistenceManager.sharedContainer.viewContext
         let downloadInfo = DownloadInfo(context: context)
-        downloadInfo.downloadedAt = NSDate()
+        downloadInfo.downloadedAt = Date()
         downloadInfo.status = .pending
         let downloadingSession = DownloadingSession(context: context)
         downloadingSession.videoURLValue = session.videoURL.absoluteString

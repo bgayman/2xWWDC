@@ -55,15 +55,14 @@ extension Session
             var websiteString = json["website"] as? String,
             let videoURLString = json["videoURL"] as? String,
             let videoURL = URL(string: videoURLString),
-            let description = json["description"] as? String,
-            let session = json["session"] as? String else { return nil }
+            let description = json["description"] as? String else { return nil }
         websiteString = websiteString.contains("https") ? websiteString : "https://developer.apple.com\(websiteString)"
         guard let website = URL(string: websiteString) else { return nil }
         self.year = year
         self.videoURL = videoURL
         self.title = title
         self.description = description
-        self.session = session
+        self.session = json["session"] as? String ?? website.pathComponents.last ?? ""
         self.website = website
         if let imageLinkString = json["imageLink"] as? String,
             let imageLink = URL(string: imageLinkString)

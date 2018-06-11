@@ -21,7 +21,7 @@ extension Year
         guard let year = json.keys.first,
             let sessionsJSON = json[year] as? [JSONDictionary] else { return nil }
         self.year = year
-        self.sessions = sessionsJSON.flatMap { Session(json: $0, year: year) }.sorted()
+        self.sessions = sessionsJSON.compactMap { Session(json: $0, year: year) }.sorted()
     }
 }
 
@@ -43,7 +43,9 @@ extension Year
                 years.append(year)
             }
         }
-        years = years.sorted { $0.year > $1.year }
+        years = years.sorted {
+            $0.year.trimmingCharacters(in: CharacterSet.letters) > $1.year.trimmingCharacters(in: CharacterSet.letters)
+        }
         return years
     }
 }

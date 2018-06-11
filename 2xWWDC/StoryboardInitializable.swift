@@ -8,33 +8,29 @@
 
 import UIKit
 
-protocol StoryboardInitializable
-{
+protocol StoryboardInitializable {
+    
     static var storyboardName: String { get }
     static var storyboardBundle: Bundle? { get }
     
     static func makeFromStoryboard() -> Self
 }
 
-extension StoryboardInitializable where Self : UIViewController
-{
-    static var storyboardName: String
-    {
+extension StoryboardInitializable where Self : UIViewController {
+    
+    static var storyboardName: String {
         return "Main"
     }
     
-    static var storyboardBundle: Bundle?
-    {
+    static var storyboardBundle: Bundle? {
         return nil
     }
     
-    static var storyboardIdentifier: String
-    {
+    static var storyboardIdentifier: String {
         return String(describing: self)
     }
     
-    static func makeFromStoryboard() -> Self
-    {
+    static func makeFromStoryboard() -> Self {
         let storyboard = UIStoryboard(name: storyboardName, bundle: storyboardBundle)
         return storyboard.instantiateViewController(
             withIdentifier: storyboardIdentifier) as! Self

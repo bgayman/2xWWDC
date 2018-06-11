@@ -63,11 +63,11 @@ extension SessionResources
               let downloadDicts = json["downloads"] as? [JSONDictionary],
               let documentDicts = json["documents"] as? [JSONDictionary],
               let videoDicts = json["videos"] as? [JSONDictionary] else { return nil }
-        self.sessionResources = resourceDicts.flatMap(SessionResource.init)
+        self.sessionResources = resourceDicts.compactMap(SessionResource.init)
         self.transcript = Transcript(json: transcriptArray)
-        self.downloads = downloadDicts.flatMap(SessionResource.init)
-        self.videos = videoDicts.flatMap(SessionResource.init)
-        self.documents = documentDicts.flatMap(SessionResource.init)
+        self.downloads = downloadDicts.compactMap(SessionResource.init)
+        self.videos = videoDicts.compactMap(SessionResource.init)
+        self.documents = documentDicts.compactMap(SessionResource.init)
     }
 }
 

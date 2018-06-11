@@ -59,12 +59,10 @@ extension Resource
     init(url: URL, method: HttpMethod<Any> = .get, parseJSON: @escaping (Any) -> A?)
     {
         self.url = url
-        self.method = method.map
-        { json in
+        self.method = method.map { json in
             try! JSONSerialization.data(withJSONObject: json, options: [])
         }
-        self.parse =
-        { data in
+        self.parse = { data in
             let json = try? JSONSerialization.jsonObject(with: data, options: [])
             return json.flatMap(parseJSON)
         }
@@ -128,7 +126,6 @@ final class CachedWebservice
             case let .success(data):
                 guard let data = data else
                 {
-                    
                     update(.error("No Data" as! Error))
                     return
                 }
