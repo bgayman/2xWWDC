@@ -47,11 +47,10 @@ extension SessionResource: Equatable, Hashable
         return lhs.title == rhs.title && lhs.link == rhs.link
     }
     
-    var hashValue: Int
-    {
-        return link.hashValue
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(title)
+        hasher.combine(link)
     }
-    
 }
 
 extension SessionResources

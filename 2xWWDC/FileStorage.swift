@@ -25,7 +25,7 @@ struct FileStorage
         set
         {
             let url = baseURL.appendingPathComponent(key)
-            _ = try? newValue?.write(to: url)
+            _ = ((try? newValue?.write(to: url)) as ()??)
         }
     }
     

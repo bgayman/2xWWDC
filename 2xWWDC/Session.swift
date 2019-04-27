@@ -99,7 +99,7 @@ extension Session
                 image = UIImage(data: data, scale: UIScreen.main.scale)?.scaleImage(scaleFactor: 0.08)
                 if let img = image
                 {
-                    FileStorage.shared["image\(imageLink.hashValue)"] = UIImageJPEGRepresentation(img, 1.0)
+                    FileStorage.shared["image\(imageLink.hashValue)"] = img.jpegData(compressionQuality: 1.0)
                 }
             }
             
@@ -114,9 +114,9 @@ extension Session
 
 extension Session: Comparable, Equatable, Hashable
 {
-    var hashValue: Int
-    {
-        return (year + session).hashValue
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(year)
+        hasher.combine(session)
     }
     
     static func <(lhs: Session, rhs: Session) -> Bool

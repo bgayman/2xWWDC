@@ -47,8 +47,8 @@ final class AppCoordinator: MasterViewControllerActionDelegate, DetailViewContro
                 guard !(detailVC.session?.session == session && detailVC.session?.year == year) else { return }
                 if let masterNav = splitViewController.viewControllers.first as? UINavigationController,
                    let masterVC = masterNav.topViewController as? MasterViewController,
-                   let yearIndex = masterVC.years.index(where: {$0.year == year}),
-                    let sessionIndex = masterVC.years[yearIndex].sessions.index(where: { $0.session == session })
+                   let yearIndex = masterVC.years.firstIndex(where: {$0.year == year}),
+                    let sessionIndex = masterVC.years[yearIndex].sessions.firstIndex(where: { $0.session == session })
                 {
                     let indexPath = IndexPath(row: sessionIndex, section: yearIndex)
                     masterVC.tableView.selectRow(at: indexPath, animated: true, scrollPosition: .top)

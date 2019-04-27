@@ -17,7 +17,7 @@ extension Transcript
 {
     init(json: [JSONDictionary])
     {
-        self.sentences = json.flatMap(Sentence.init).sorted()
+        self.sentences = json.compactMap(Sentence.init).sorted()
     }
 }
 
@@ -56,8 +56,8 @@ extension Sentence: Equatable, Comparable, Hashable
         return lhs.startTime < rhs.startTime
     }
     
-    var hashValue: Int
-    {
-        return "\(text)\(startTime)".hashValue
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(text)
+        hasher.combine(startTime)
     }
 }

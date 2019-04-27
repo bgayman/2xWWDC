@@ -132,7 +132,7 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
             tableView.tableHeaderView = searchController.searchBar
         }
         tableView.estimatedRowHeight = 50.0
-        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.rowHeight = UITableView.automaticDimension
         if #available(iOS 11.0, *)
         {
             tableView.dragDelegate = self
@@ -169,7 +169,7 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
             for (index, year) in (self?.years.enumerated() ?? [Year]().enumerated())
             {
                 guard let session = year.sessions.first(where: { $0.id  == payload.sessionID }),
-                      let sessionIndex = year.sessions.index(of: session) else { continue }
+                      let sessionIndex = year.sessions.firstIndex(of: session) else { continue }
                 let indexPath = IndexPath(row: sessionIndex, section: index)
                 if self?.view.window != nil
                 {
@@ -284,18 +284,18 @@ final class MasterViewController: UITableViewController, StoryboardInitializable
 
         case .searching:
             session = self.searchResults[indexPath.section].sessions[indexPath.row]
-            let attribTitle = NSMutableAttributedString(string: session.title, attributes: [NSAttributedStringKey.foregroundColor: UIColor.black])
+            let attribTitle = NSMutableAttributedString(string: session.title, attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
             let range = (session.title.lowercased() as NSString).range(of: searchString.lowercased())
-            attribTitle.addAttributes([NSAttributedStringKey.foregroundColor: UIColor.orange], range: range)
+            attribTitle.addAttributes([NSAttributedString.Key.foregroundColor: UIColor.orange], range: range)
             cell.textLabel?.attributedText = attribTitle
             
             if session.description.lowercased().contains(searchString.lowercased())
             {
                 let range = (session.description.lowercased() as NSString).range(of: searchString.lowercased())
                 let substring = "...\((session.description as NSString).substring(from: range.location))"
-                let attribDescription = NSMutableAttributedString(string: substring, attributes: [NSAttributedStringKey.foregroundColor: UIColor.black])
+                let attribDescription = NSMutableAttributedString(string: substring, attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
                 let newRange = (substring.lowercased() as NSString).range(of: searchString.lowercased())
-                attribDescription.addAttributes([NSAttributedStringKey.foregroundColor: UIColor.orange], range: newRange)
+                attribDescription.addAttributes([NSAttributedString.Key.foregroundColor: UIColor.orange], range: newRange)
                 cell.detailTextLabel?.attributedText = attribDescription
             }
             else

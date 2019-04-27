@@ -129,10 +129,10 @@ final class DetailViewController: UIViewController, StoryboardInitializable
     @objc lazy var avPlayerViewController: AVPlayerViewController =
     {
         let avPlayerViewController = AVPlayerViewController()
-        self.addChildViewController(avPlayerViewController)
+        self.addChild(avPlayerViewController)
         avPlayerViewController.view.frame = self.videoContainerView?.bounds ?? .zero
         self.videoContainerView.addSubview(avPlayerViewController.view)
-        avPlayerViewController.didMove(toParentViewController: self)
+        avPlayerViewController.didMove(toParent: self)
         avPlayerViewController.view.translatesAutoresizingMaskIntoConstraints = false
         avPlayerViewController.view.topAnchor.constraint(equalTo: self.videoContainerView.topAnchor).isActive = true
         avPlayerViewController.view.bottomAnchor.constraint(equalTo: self.videoContainerView.bottomAnchor).isActive = true
@@ -206,9 +206,9 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         
         textView.text = session?.description
         resourcesTableView.estimatedRowHeight = 55.0
-        resourcesTableView.rowHeight = UITableViewAutomaticDimension
+        resourcesTableView.rowHeight = UITableView.automaticDimension
         transcriptTableView.estimatedRowHeight = 55.0
-        transcriptTableView.rowHeight = UITableViewAutomaticDimension
+        transcriptTableView.rowHeight = UITableView.automaticDimension
         
         setupNotifications()
         
@@ -298,7 +298,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
             self?.progressView.progress = payload.progress
         }
         
-        NotificationCenter.when(.UIApplicationDidEnterBackground)
+        NotificationCenter.when(UIApplication.didEnterBackgroundNotification)
         { [weak self](_) in
             guard let item = self?.avPlayerViewController.player?.currentItem,
                   let player = self?.avPlayerViewController.player,
@@ -327,7 +327,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
             guard let strongSelf = self,
                   let sessionResources = strongSelf.sessionResources else { return }
             if let nextSentence = sessionResources.transcript.sentences.first(where: { strongSelf.avPlayerViewController.player?.currentTime().seconds ?? 0.0 > $0.startTime && strongSelf.avPlayerViewController.player?.currentTime().seconds ?? 0.0 < $0.endTime }),
-               let nextIndex = sessionResources.transcript.sentences.index(of: nextSentence)
+               let nextIndex = sessionResources.transcript.sentences.firstIndex(of: nextSentence)
             {
                 let newIndex = IndexPath(row: nextIndex, section: 0)
                 let lastCell = strongSelf.transcriptTableView?.cellForRow(at: strongSelf.transcriptIndex)
@@ -377,7 +377,7 @@ final class DetailViewController: UIViewController, StoryboardInitializable
         {
             quickActions = Array(quickActions.dropFirst())
         }
-        let shortcut = UIApplicationShortcutItem(type: "session", localizedTitle: session.title, localizedSubtitle: session.year, icon: nil, userInfo: ["year": session.year, "session": session.session])
+        let shortcut = UIApplicationShortcutItem(type: "session", localizedTitle: session.title, localizedSubtitle: session.year, icon: nil, userInfo: ["year": session.year as NSSecureCoding, "session": session.session as NSSecureCoding])
         quickActions.append(shortcut)
         UIApplication.shared.shortcutItems = quickActions
     }
@@ -611,9 +611,9 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
                 cell.textLabel?.text = sessionResource?.title
             case .searching:
                 sessionResource = filteredSessionResources[indexPath.row]
-                let attribString = NSMutableAttributedString(string: sessionResource?.title ?? "", attributes: [NSAttributedStringKey.foregroundColor: UIColor.black])
+                let attribString = NSMutableAttributedString(string: sessionResource?.title ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
                 let range = ((sessionResource?.title.lowercased() ?? "") as NSString).range(of: searchString.lowercased())
-                attribString.addAttributes([NSAttributedStringKey.foregroundColor: UIColor.orange], range: range)
+                attribString.addAttributes([NSAttributedString.Key.foregroundColor: UIColor.orange], range: range)
                 cell.textLabel?.attributedText = attribString
             }
             if sessionResource?.title.lowercased().contains("hd") == true || sessionResource?.title.lowercased().contains("sd") == true
@@ -660,9 +660,9 @@ extension DetailViewController: UITableViewDelegate, UITableViewDataSource
                 cell.textLabel?.textColor = indexPath == transcriptIndex ? highLightColor : lowLightColor
             case .searching:
                 sentence = filteredTranscript[indexPath.row]
-                let attribString = NSMutableAttributedString(string: sentence?.text ?? "", attributes: [NSAttributedStringKey.foregroundColor: indexPath == transcriptIndex ? highLightColor : lowLightColor])
+                let attribString = NSMutableAttributedString(string: sentence?.text ?? "", attributes: [NSAttributedString.Key.foregroundColor: indexPath == transcriptIndex ? highLightColor : lowLightColor])
                 let range = ((sentence?.text.lowercased() ?? "") as NSString).range(of: searchString.lowercased())
-                attribString.addAttributes([NSAttributedStringKey.foregroundColor: UIColor.orange], range: range)
+                attribString.addAttributes([NSAttributedString.Key.foregroundColor: UIColor.orange], range: range)
                 cell.textLabel?.attributedText = attribString
             }
             
@@ -819,8 +819,8 @@ extension DetailViewController: UISearchResultsUpdating
         }
         
         let range = ((session?.description.lowercased() ?? "") as NSString).range(of: searchString.lowercased())
-        let attribDescription = NSMutableAttributedString(string: session?.description ?? "", attributes: [NSAttributedStringKey.foregroundColor: UIColor.black])
-        attribDescription.addAttributes([NSAttributedStringKey.foregroundColor: UIColor.orange], range: range)
+        let attribDescription = NSMutableAttributedString(string: session?.description ?? "", attributes: [NSAttributedString.Key.foregroundColor: UIColor.black])
+        attribDescription.addAttributes([NSAttributedString.Key.foregroundColor: UIColor.orange], range: range)
         
         textView.attributedText = attribDescription
     }

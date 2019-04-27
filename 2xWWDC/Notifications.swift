@@ -34,25 +34,25 @@ struct NotificationDescriptor<A>
     let parse: ([AnyHashable: Any]) -> A
 }
 
-let keyboardWillShow = NotificationDescriptor(name: .UIKeyboardWillShow, parse: KeyboardShowPayload.init)
-let keyboardWillHide = NotificationDescriptor(name: .UIKeyboardWillHide, parse: KeyboardShowPayload.init)
+let keyboardWillShow = NotificationDescriptor(name: UIResponder.keyboardWillShowNotification, parse: KeyboardShowPayload.init)
+let keyboardWillHide = NotificationDescriptor(name: UIResponder.keyboardWillHideNotification, parse: KeyboardShowPayload.init)
 
 struct KeyboardShowPayload
 {
     var beginFrame: CGRect
     let endFrame: CGRect
-    let animationCurve: UIViewAnimationCurve
+    let animationCurve: UIView.AnimationCurve
     let animationDuration: TimeInterval
     let isLocal: Bool
     
     init(userInfo: [AnyHashable: Any])
     {
-        self.beginFrame = userInfo[UIKeyboardFrameBeginUserInfoKey] as! CGRect
-        self.endFrame = userInfo[UIKeyboardFrameEndUserInfoKey] as! CGRect
-        let animationCurveRaw = userInfo[UIKeyboardAnimationCurveUserInfoKey] as! UIViewAnimationCurve.RawValue
-        self.animationCurve = UIViewAnimationCurve(rawValue: animationCurveRaw)!
-        self.animationDuration = userInfo[UIKeyboardAnimationDurationUserInfoKey] as! TimeInterval
-        self.isLocal = userInfo[UIKeyboardIsLocalUserInfoKey] as! Bool
+        self.beginFrame = userInfo[UIResponder.keyboardFrameBeginUserInfoKey] as! CGRect
+        self.endFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as! CGRect
+        let animationCurveRaw = userInfo[UIResponder.keyboardAnimationCurveUserInfoKey] as! UIView.AnimationCurve.RawValue
+        self.animationCurve = UIView.AnimationCurve(rawValue: animationCurveRaw)!
+        self.animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as! TimeInterval
+        self.isLocal = userInfo[UIResponder.keyboardIsLocalUserInfoKey] as! Bool
     }
 }
 

@@ -48,9 +48,9 @@ extension UITableView
             let inserted = newSet.subtracting(oldSet)
             let updated = newSet.intersection(oldSet)
             
-            removedIndexes.append(contentsOf: removed.flatMap{ oldArray.index(of: $0) }.map{ IndexPath(row: $0, section: i) })
-            insertedIndexes.append(contentsOf: inserted.flatMap{ newArray.index(of: $0) }.map{ IndexPath(row: $0, section: i) })
-            updatedIndexes.append(contentsOf: updated.flatMap{ oldArray.index(of: $0) }.map{ IndexPath(row: $0, section: i) })
+            removedIndexes.append(contentsOf: removed.compactMap{ oldArray.firstIndex(of: $0) }.map{ IndexPath(row: $0, section: i) })
+            insertedIndexes.append(contentsOf: inserted.compactMap{ newArray.firstIndex(of: $0) }.map{ IndexPath(row: $0, section: i) })
+            updatedIndexes.append(contentsOf: updated.compactMap{ oldArray.firstIndex(of: $0) }.map{ IndexPath(row: $0, section: i) })
         }
         
         self.beginUpdates()
